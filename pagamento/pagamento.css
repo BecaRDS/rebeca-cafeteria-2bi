@@ -1,0 +1,147 @@
+/* Reset básico: Remove margens e preenchimentos padrão dos elementos e ajusta box-sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Estilização do corpo da página */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte legível e moderna */
+  background-color: #f9f5f1; /* Cor de fundo suave */
+  color: #3e2723; /* Cor principal do texto */
+  padding: 20px; /* Espaço interno geral */
+  line-height: 1; /* Espaçamento vertical entre linhas (compacto) */
+  display: flex; /* Permite layout flexível */
+  flex-direction: column; /* Coloca os filhos em coluna */
+  min-height: 100vh; /* Garante que o corpo tenha no mínimo 100% da altura da tela */
+}
+
+/* Estilização do cabeçalho */
+header {
+  text-align: center; /* Centraliza o texto */
+  margin-bottom: 30px; /* Espaço abaixo do cabeçalho */
+  background-color: #5d4037; /* Cor de fundo marrom escuro */
+  padding: 25px 20px; /* Espaçamento interno */
+  color: white; /* Cor do texto */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra leve */
+  border-radius: 8px; /* Cantos arredondados */
+}
+
+/* Estilização dos títulos */
+h2 {
+  font-size: 2.5rem; /* Tamanho grande */
+  font-weight: bold; /* Negrito */
+  text-transform: uppercase; /* Transforma em letras maiúsculas */
+  padding: 20px;
+}
+
+/* Área de resumo de pagamento */
+#resumoPagamento {
+  background-color: #efebe9; /* Fundo claro */
+  padding: 20px; /* Espaço interno */
+  margin-bottom: 25px; /* Espaço inferior */
+  border-left: 10px solid #8d6e63; /* Borda lateral marrom */
+  border-radius: 8px; /* Cantos arredondados */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1); /* Sombra */
+  font-size: 1.4rem; /* Texto grande */
+  color: #4e342e; /* Cor do texto */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilização de rótulos */
+label {
+  font-size: 1.1rem; /* Tamanho médio */
+  color: #5d4037; /* Marrom escuro */
+  margin-bottom: 8px; /* Espaço inferior */
+  display: inline-block; /* Permite aplicar margens e paddings */
+}
+
+/* Estilização do select (menu suspenso de formas de pagamento) */
+select {
+  padding: 12px; /* Espaço interno */
+  margin: 12px 0; /* Margens verticais */
+  width: 100%; /* Largura total */
+  max-width: 320px; /* Limita a largura máxima */
+  border: 1px solid #bcaaa4; /* Borda sutil */
+  border-radius: 6px; /* Cantos arredondados */
+  font-size: 1rem; /* Tamanho da fonte */
+  background-color: #988276ae; /* Fundo com leve transparência */
+  color: #3e2723; /* Cor do texto */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Suaviza as mudanças */
+}
+
+/* Efeito ao focar no select */
+select:focus {
+  border-color: #6f4f29; /* Cor da borda ao focar */
+  outline: none; /* Remove contorno padrão */
+  box-shadow: 0 0 5px rgba(111, 79, 41, 0.4); /* Sombra para destaque */
+}
+
+/* Estilização dos botões */
+.botao {
+  margin: 10px 10px 0 0; /* Espaço externo */
+  padding: 12px 30px; /* Espaço interno */
+  background-color: #795548; /* Cor marrom */
+  color: white; /* Texto branco */
+  border: none; /* Sem borda */
+  border-radius: 6px; /* Cantos arredondados */
+  font-size: 1.05rem; /* Tamanho da fonte */
+  cursor: pointer; /* Cursor de mão */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Animações suaves */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+}
+
+/* Efeito hover no botão */
+.botao:hover {
+  background-color: #6d4c41; /* Tom mais escuro ao passar o mouse */
+  transform: scale(1.04); /* Aumenta levemente */
+}
+
+/* Efeito ao clicar/focar no botão */
+.botao:focus {
+  outline: none; /* Remove contorno padrão */
+  box-shadow: 0 0 10px rgba(111, 79, 41, 0.4); /* Sombra de foco */
+}
+
+/* Estilização do rodapé */
+footer {
+  text-align: center; /* Texto centralizado */
+  margin-top: auto; /* Empurra o rodapé para o final da página (em layout flexível) */
+  padding: 20px; /* Espaçamento interno */
+  color: #a1887f; /* Cor de texto suave */
+  font-size: 0.9rem; /* Fonte um pouco menor */
+  background-color: #efebe9; /* Fundo claro */
+  border-top: 1px solid #d7ccc8; /* Linha sutil no topo */
+}
+
+.barra-inferior {
+  position: fixed;
+  bottom: 20px;
+  right: 15px;
+  background-color: #3e2723;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.barra-inferior button {
+  background-color: #6a4a40;
+  color: #4b2119;
+  border: none;
+  padding: 5px 5px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 60px; /* largura dos ícones */
+}
+
+.barra-inferior button:hover {
+  background-color: #8c665b;
+}
+

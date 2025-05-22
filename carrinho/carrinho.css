@@ -1,0 +1,135 @@
+/* carrinho.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f5f1;
+  color: #3e2723;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background-color: #5d4037;
+  padding: 25px 20px;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header h2 {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+main {
+  flex: 1;
+  padding: 30px 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+footer {
+  background-color: #5d4037;
+  text-align: center;
+  padding: 15px;
+  color: #fff;
+  font-size: 0.9rem;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.item-carrinho {
+  background-color: #efebe9;
+  border: 1px solid #d7ccc8;
+  border-left: 5px solid #8d6e63;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.item-carrinho span,
+.item-carrinho label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.item-carrinho strong {
+  font-size: 1.1rem;
+  color: #4e342e;
+}
+
+input[type="number"] {
+  width: 70px;
+  padding: 6px;
+  border: 1px solid #bcaaa4;
+  border-radius: 4px;
+  background-color: #fbe9e7;
+  color: #3e2723;
+}
+
+#valorTotal {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #4e342e;
+  margin-top: 25px;
+}
+
+.botao {
+  background-color: #795548;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  margin-top: 20px;
+  margin-right: 10px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 6px 5px rgba(0, 0, 0, 0.15);
+}
+
+.botao:hover {
+  background-color: #6d4c41;
+  transform: translateY(-1px);
+}
+
+.barra-inferior-direita {
+  position: fixed;
+  bottom: 20px;
+  right: 15px;
+  background-color: #3e2723;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.barra-inferior-direita button {
+  background-color: #6a4a40;
+  color: #4b2119;
+  border: none;
+  padding: 5px 5px;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  min-width: 60px; /* largura dos ícones */
+}
+
+.barra-inferior-direita button:hover {
+  background-color: #8c665b;
+}
+
+
+

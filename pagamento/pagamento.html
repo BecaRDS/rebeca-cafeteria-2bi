@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <!-- Define a codificação de caracteres como UTF-8 (suporta acentuação) -->
+  <meta charset="UTF-8" />
+  <!-- Define a escala da página para dispositivos móveis -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Título que aparece na aba do navegador -->
+  <title>Pagamento - Cafeteria</title>
+
+  <!-- Link para o arquivo de estilos CSS externo -->
+  <link rel="stylesheet" href="./pagamento.css">
+</head>
+<body>
+  <!-- Cabeçalho da página -->
+  <header>
+    <h2>Pagamento</h2> <!-- Título principal da seção de pagamento -->
+  </header>
+
+  <nav class="barra-inferior">
+    <a href="../menu/menu.html">☕</a>
+    <a href="../carrinho/carrinho.html">🛒</a>
+  </nav>
+  
+  
+
+  <!-- Conteúdo principal da página -->
+  <main>
+    <!-- Área onde será exibido o resumo do pagamento, preenchido via JavaScript -->
+    <section id="resumoPagamento"></section>
+
+    <!-- Rótulo do campo de seleção da forma de pagamento -->
+    <label for="formaPagamento">Escolha sua forma de pagamento:</label><br />
+
+    <!-- Menu suspenso (dropdown) para escolher a forma de pagamento -->
+    <select id="formaPagamento" onchange="verificarPagamento()">
+      <!-- Opção padrão desativada -->
+      <option disabled selected>Forma de pagamento</option>
+      <option>Pix</option>
+      <option>Cartão de Crédito</option>
+      <option>Dinheiro</option>
+    </select>
+    
+    <!-- Botões para finalizar a compra ou voltar ao menu -->
+    <div>
+      <!-- Ao clicar, executa a função finalizarCompra() -->
+      <button class="botao" onclick="finalizarCompra()">Finalizar</button>
+
+    </div>
+
+    <!-- Área que só aparece se o usuário escolher Pix como forma de pagamento -->
+    <section id="qrcode-area" class="qrcode-area" style="display: none;"> 
+      <!-- Texto explicativo para o usuário -->
+      <h2>Escaneie o QR Code para pagar com PIX</h2>
+      
+      <!-- Div onde o QR Code será inserido dinamicamente pelo JavaScript -->
+      <div id="qrcode"></div>
+    </section>
+  </main>
+
+  <!-- Rodapé da página -->
+  <footer>
+    <p>&copy; 2025 Cafeteria</p> <!-- Texto de direitos autorais -->
+  </footer>
+
+  <!-- Biblioteca externa para gerar QR Codes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Script JavaScript com as funções específicas desta página -->
+  <script src="./pagamento.js"></script>
+</body>
+</html>
