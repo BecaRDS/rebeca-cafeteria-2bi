@@ -1,0 +1,236 @@
+:root {
+  --primary: #6d4c41;
+  --primary-dark: #4b2c20;
+  --primary-light: #8d6e63;
+  --secondary: #bcaaa4;
+  --background: #fbe9e7;
+  --text: #4e342e;
+  --text-light: #8d6e63;
+  --white: #ffffff;
+  --error: #d32f2f;
+  --success: #388e3c;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Roboto', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f5f5 0%, #efebe9 100%);
+  z-index: -1;
+}
+
+.login-container {
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.logo i {
+  font-size: 3.5rem;
+  color: var(--primary);
+}
+
+.logo h1 {
+  font-size: 1.8rem;
+  color: var(--primary-dark);
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 1.2rem;
+}
+
+.input-group i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(109, 76, 65, 0.2);
+}
+
+.toggle-password {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.botao {
+  padding: 0.5rem; /*tamanho do botão "entrar"*/
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.botao i {
+  font-size: 1rem;
+}
+
+.botao.principal {
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+.botao.principal:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.botao.secundario {
+  background-color: var(--secondary);
+  color: var(--text);
+}
+
+.botao.secundario:hover {
+  background-color: #a1887f;
+}
+
+.botao.gerente {
+  background-color: var(--primary-dark);
+  color: var(--white);
+}
+
+.botao.gerente:hover {
+  background-color: #3e2723;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--text-light);
+  margin: 0.5rem 0;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid var(--secondary);
+}
+
+.separator::before {
+  margin-right: 1rem;
+}
+
+.separator::after {
+  margin-left: 1rem;
+}
+
+.acoes {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.acoes .botao {
+  flex: 1;
+}
+
+.recovery-container {
+  display: none;
+  flex-direction: column;
+  gap: 1.2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.recovery-container h3 {
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.status-message {
+  padding: 0.8rem;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.status-message.error {
+  background-color: rgba(211, 47, 47, 0.1);
+  color: var(--error);
+}
+
+.status-message.success {
+  background-color: rgba(56, 142, 60, 0.1);
+  color: var(--success);
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .acoes {
+    flex-direction: column;
+  }
+}

@@ -1,92 +1,72 @@
-// Seleciona a div onde os itens do carrinho serão exibidos
-const div = document.getElementById('itensCarrinho');
+document.addEventListener("DOMContentLoaded", () => {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+  const itensCarrinho = document.getElementById('itensCarrinho');
+  const valorTotal = document.getElementById('valorTotal');
 
-// Recupera o carrinho do localStorage ou inicializa como objeto vazio
-const carrinho = JSON.parse(localStorage.getItem('carrinho')) || {};
+  fetch('http://localhost:3000/products')
+    .then(res => res.json())
+    .then(produtos => {
+      let total = 0;
 
-// Inicializa o valor total da compra
-let valorTotal = 0;
+      Object.values(carrinho).forEach(item => {
+        const produto = produtos.find(p => p.id === item.id);
+        if (produto) {
+          const subtotal = produto.preco * item.quantidade;
+          total += subtotal;
 
-/**
- * Função responsável por calcular e atualizar o valor total do carrinho
- * Também atualiza o localStorage com os dados atualizados
- */
-function atualizarValorTotal() {
-  let novoTotal = 0;
+          const div = document.createElement('div');
+          div.className = 'item-carrinho';
 
-  // Percorre cada item do carrinho e acumula o total
-  for (let item in carrinho) {
-    novoTotal += carrinho[item].quantidade * carrinho[item].preco;
+          div.innerHTML = `
+            <strong>${produto.nome}</strong><br>
+            <span>Preço: R$ ${produto.preco.toFixed(2)}</span>
+            <label>Quantidade:</label>
+            <input type="number" value="${item.quantidade}" min="1" onchange="alterarQuantidade(${produto.id}, this.value)">
+            <p>Subtotal: R$ ${(produto.preco * item.quantidade).toFixed(2)}</p>
+          `;
+
+          itensCarrinho.appendChild(div);
+        }
+      });
+
+      valorTotal.innerText = `Total: R$ ${total.toFixed(2)}`;
+      // Armazena o valor total no localStorage para ser usado na página de pagamento
+      localStorage.setItem('valorTotal', total.toFixed(2));
+    });
+});
+
+function alterarQuantidade(id, novaQtd) {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
+  if (carrinho[id]) {
+    carrinho[id].quantidade = parseInt(novaQtd);
+    sessionStorage.setItem('carrinho', JSON.stringify(carrinho));
+    location.reload(); // Atualiza os valores na tela
   }
-
-  // Atualiza o texto do total na página
-  document.getElementById('valorTotal').textContent = `Valor total da compra: R$ ${novoTotal.toFixed(2)}`;
-
-  // Salva o carrinho atualizado no localStorage
-  localStorage.setItem('carrinho', JSON.stringify(carrinho));
-
-  // Atualiza a quantidade total de itens
-  localStorage.setItem('quantidadeTotal', Object.values(carrinho).reduce((s, i) => s + i.quantidade, 0));
-
-  // Salva o valor total no localStorage (ESSENCIAL para uso posterior no pagamento)
-  localStorage.setItem('valorTotal', novoTotal.toFixed(2));
 }
 
-/**
- * Função que altera a quantidade de um item específico no carrinho
- * Se a nova quantidade for 0 ou menor, o item é removido
- * Depois atualiza o carrinho na tela e o total
- */
-function alterarQuantidade(item, novaQuantidade) {
-  novaQuantidade = parseInt(novaQuantidade);
-
-  if (novaQuantidade <= 0) {
-    // Remove o item do carrinho se a quantidade for 0 ou negativa
-    delete carrinho[item];
-  } else {
-    // Atualiza a quantidade do item
-    carrinho[item].quantidade = novaQuantidade;
-  }
-
-  // Reexibe os itens do carrinho atualizados
-  renderizarCarrinho();
-
-  // Atualiza o valor total da compra
-  atualizarValorTotal();
-}
-
-/**
- * Função que monta e exibe os itens do carrinho na página
- */
-function renderizarCarrinho() {
-  div.innerHTML = ''; // Limpa o conteúdo atual da div
-
-  // Verifica se o carrinho está vazio
+function finalizarCompra() {
+  const carrinho = JSON.parse(sessionStorage.getItem('carrinho')) || {};
   if (Object.keys(carrinho).length === 0) {
-    div.innerHTML = '<p>Seu carrinho está vazio.</p>';
-  } else {
-    // Para cada item, cria um bloco HTML com nome, preço e campo de quantidade
-    for (let item in carrinho) {
-      div.innerHTML += `
-        <div class="item-carrinho">
-          <span><strong>${item}</strong></span>
-          <span>Preço: R$ ${carrinho[item].preco.toFixed(2)}</span>
-          <label>
-            Quantidade:
-            <input type="number" min="0" value="${carrinho[item].quantidade}" 
-              onchange="alterarQuantidade('${item}', this.value)" />
-          </label>
-        </div>
-      `;
-    }
+    alert("Seu carrinho está vazio!");
+    return;
   }
+  
+  // Calcula o total novamente para garantir que está correto
+  let total = 0;
+  fetch('http://localhost:3000/products')
+    .then(res => res.json())
+    .then(produtos => {
+      Object.values(carrinho).forEach(item => {
+        const produto = produtos.find(p => p.id === item.id);
+        if (produto) {
+          total += produto.preco * item.quantidade;
+        }
+      });
+      
+      // Armazena o valor total no localStorage para a página de pagamento
+      localStorage.setItem('valorTotal', total.toFixed(2));
+      
+      // Redireciona para a página de pagamento
+      window.location.href = '../pagamento/pagamento.html';
+    });
 }
-
-// Chama a função para mostrar os itens quando a página carregar
-renderizarCarrinho();
-
-// Calcula e exibe o valor total na página
-atualizarValorTotal();
-
-// Esta linha é redundante aqui (já é tratada em `atualizarValorTotal()`), pode ser removida se quiser evitar confusão:
-// localStorage.setItem('valorTotal', total.toFixed(2)); // <-- Pode ser excluída com segurança

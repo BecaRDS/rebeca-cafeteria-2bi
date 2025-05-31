@@ -42,7 +42,7 @@ function pagarPIX() {
 
   // Função auxiliar que formata os campos do payload Pix
   function format(id, value) {
-    const size = value.length.toString().padStart(2, '0'); // Garante que o tamanho seja sempre com 2 dígitos
+    const size = value.length.toString().padStart(2, '0');
     return `${id}${size}${value}`;
   }
 
@@ -64,7 +64,7 @@ function pagarPIX() {
     format("62", format("05", "***")) + // Campo adicional qualquer
     "6304"; // Início do campo do CRC
 
-  // Função que calcula o CRC16 do payload, exigido pelo padrão do Pix
+  // Função que calcula o CRC16 do payload
   function crc16(str) {
     let crc = 0xFFFF;
     for (let i = 0; i < str.length; i++) {
@@ -78,7 +78,7 @@ function pagarPIX() {
         crc &= 0xFFFF;
       }
     }
-    return crc.toString(16).toUpperCase().padStart(4, '0'); // Retorna o CRC em hexadecimal
+    return crc.toString(16).toUpperCase().padStart(4, '0');
   }
 
   // Junta o payload com o código de verificação (CRC)
@@ -86,19 +86,19 @@ function pagarPIX() {
 
   // Seleciona a div onde o QR Code será exibido
   const qrCodeDiv = document.getElementById("qrcode");
-  qrCodeDiv.innerHTML = ''; // Limpa qualquer conteúdo anterior
+  qrCodeDiv.innerHTML = '';
 
   // Exibe a área do QR Code
   document.getElementById("qrcode-area").style.display = "block";
 
   // Gera o QR Code com a biblioteca QRCode.js
   new QRCode(qrCodeDiv, {
-    text: payloadCompleto, // Código Pix completo
+    text: payloadCompleto,
     width: 250,
     height: 250,
     colorDark: "#000000",
     colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H // Alta correção de erros
+    correctLevel: QRCode.CorrectLevel.H
   });
 
   // Cria uma div com informações extras abaixo do QR Code
@@ -109,7 +109,7 @@ function pagarPIX() {
     <p><strong>CPF/CNPJ (PIX):</strong> ${chavePix}</p>
     <p><strong>Valor:</strong> R$ ${valor.toFixed(2)}</p>
   `;
-  qrCodeDiv.appendChild(info); // Adiciona à div do QR Code
+  qrCodeDiv.appendChild(info);
 }
 
 // Função que finaliza a compra

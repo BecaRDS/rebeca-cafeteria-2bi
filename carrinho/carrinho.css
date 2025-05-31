@@ -13,6 +13,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding: 20px;
 }
 
 header {
@@ -21,6 +22,8 @@ header {
   text-align: center;
   color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 30px;
 }
 
 header h2 {
@@ -30,35 +33,25 @@ header h2 {
 
 main {
   flex: 1;
-  padding: 30px 20px;
+  padding: 0 20px;
   max-width: 800px;
   margin: 0 auto;
-}
-
-footer {
-  background-color: #5d4037;
-  text-align: center;
-  padding: 15px;
-  color: #fff;
-  font-size: 0.9rem;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 .item-carrinho {
   background-color: #efebe9;
   border: 1px solid #d7ccc8;
-  border-left: 5px solid #8d6e63;
+  border-left: 10px solid #8d6e63;
+  border-radius: 8px;
   padding: 20px;
   margin-bottom: 20px;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
 }
 
-.item-carrinho span,
-.item-carrinho label {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 1rem;
+.item-carrinho:hover {
+  transform: translateY(-3px);
 }
 
 .item-carrinho strong {
@@ -66,42 +59,69 @@ footer {
   color: #4e342e;
 }
 
+.item-carrinho span,
+.item-carrinho label,
+.item-carrinho p {
+  display: block;
+  margin-top: 8px;
+  font-size: 1rem;
+  color: #5d4037;
+}
+
 input[type="number"] {
   width: 70px;
-  padding: 6px;
+  padding: 8px;
+  margin-top: 5px;
   border: 1px solid #bcaaa4;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: #fbe9e7;
   color: #3e2723;
+  font-size: 1rem;
 }
 
 #valorTotal {
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1.4rem;
+  font-weight: bold;
   color: #4e342e;
   margin-top: 25px;
+  text-align: right;
+  background-color: #efebe9;
+  padding: 20px;
+  border-left: 10px solid #8d6e63;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .botao {
   background-color: #795548;
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 12px 30px;
   margin-top: 20px;
-  margin-right: 10px;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.05rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  box-shadow: 0 6px 5px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  float: right;
 }
 
 .botao:hover {
   background-color: #6d4c41;
-  transform: translateY(-1px);
+  transform: scale(1.04);
 }
 
-.barra-inferior-direita {
+footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 20px;
+  color: #a1887f;
+  font-size: 0.9rem;
+  background-color: #efebe9;
+  border-top: 1px solid #d7ccc8;
+}
+
+.barra-inferior {
   position: fixed;
   bottom: 20px;
   right: 15px;
@@ -115,21 +135,20 @@ input[type="number"] {
   z-index: 1000;
 }
 
-.barra-inferior-direita button {
-  background-color: #6a4a40;
-  color: #4b2119;
-  border: none;
-  padding: 5px 5px;
-  font-size: 0.95rem;
-  border-radius: 8px;
-  cursor: pointer;
+.barra-inferior a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  padding: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   transition: background-color 0.3s ease;
-  min-width: 60px; /* largura dos ícones */
 }
 
-.barra-inferior-direita button:hover {
-  background-color: #8c665b;
+.barra-inferior a:hover {
+  background-color: #5d4037;
 }
-
-
-
