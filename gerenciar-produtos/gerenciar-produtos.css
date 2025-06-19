@@ -1,0 +1,172 @@
+  /* Estilos básicos para o corpo e fonte */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* cinza claro de fundo */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinha no topo para melhor visualização de conteúdo maior */
+            min-height: 100vh; /* Garante que o corpo ocupa toda a altura da viewport */
+            padding: 2rem 1rem; /* Adiciona padding para telas pequenas */
+            box-sizing: border-box; /* Inclui padding na largura total */
+        }
+        .container {
+            max-width: 900px; /* Largura máxima para o conteúdo principal */
+            width: 100%; /* Ocupa 100% da largura disponível até o max-width */
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* cantos arredondados */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* sombra suave */
+            padding: 2rem;
+            box-sizing: border-box; /* Inclui padding na largura total */
+        }
+        h1, h2 {
+            color: #1f2937; /* cinza escuro para títulos */
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700; /* Negrito */
+        }
+        .form-container, .table-container {
+            margin-bottom: 2rem;
+        }
+        form div {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600; /* Seminegrito */
+            color: #374151; /* cinza médio */
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db; /* borda cinza clara */
+            border-radius: 0.5rem; /* cantos arredondados */
+            font-size: 1rem;
+            box-sizing: border-box; /* Inclui padding na largura total */
+        }
+        textarea {
+            min-height: 80px; /* Altura mínima para textarea */
+            resize: vertical; /* Permite redimensionar verticalmente */
+        }
+        .button-group {
+            display: flex;
+            gap: 1rem; /* Espaçamento entre botões */
+            justify-content: flex-end; /* Alinha botões à direita */
+            margin-top: 1.5rem;
+        }
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button[type="submit"] {
+            background-color: #4f46e5; /* azul índigo */
+            color: #ffffff;
+        }
+        button[type="submit"]:hover {
+            background-color: #4338ca; /* azul índigo mais escuro no hover */
+            transform: translateY(-1px);
+        }
+        button[type="button"]#cancel-edit {
+            background-color: #ef4444; /* vermelho */
+            color: #ffffff;
+        }
+        button[type="button"]#cancel-edit:hover {
+            background-color: #dc2626; /* vermelho mais escuro no hover */
+            transform: translateY(-1px);
+        }
+        .delete {
+            background-color: #ef4444; /* vermelho */
+            color: #ffffff;
+            margin-left: 0.5rem;
+        }
+        .delete:hover {
+            background-color: #dc2626; /* vermelho mais escuro */
+        }
+        .edit {
+            background-color: #f59e0b; /* amarelo-laranja */
+            color: #ffffff;
+        }
+        .edit:hover {
+            background-color: #d97706; /* amarelo-laranja mais escuro */
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #e5e7eb; /* linha divisória cinza clara */
+            margin: 2.5rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb; /* borda inferior para células */
+        }
+        th {
+            background-color: #e5e7eb; /* fundo cinza claro para cabeçalho */
+            font-weight: 700;
+            color: #374151;
+        }
+        tr:last-child td {
+            border-bottom: none; /* remove borda inferior da última linha */
+        }
+        .loading, .error {
+            text-align: center;
+            font-style: italic;
+            color: #6b7280; /* cinza */
+            padding: 1.5rem;
+        }
+        .error {
+            color: #dc2626; /* vermelho para erros */
+        }
+        .success {
+            background-color: #d1fae5; /* verde claro */
+            color: #065f46; /* verde escuro */
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .back-button {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .back-button button {
+            background-color: #6b7280; /* cinza */
+            color: #ffffff;
+        }
+        .back-button button:hover {
+            background-color: #4b5563; /* cinza mais escuro */
+            transform: translateY(-1px);
+        }
+
+        /* Estilos responsivos para imagens na tabela */
+        @media (max-width: 640px) {
+            img {
+                width: 40px; /* Reduz tamanho da imagem em telas menores */
+                height: 40px;
+                object-fit: cover; /* Garante que a imagem cubra a área */
+                border-radius: 0.25rem; /* Leve arredondamento */
+            }
+            th, td {
+                padding: 0.75rem 0.5rem; /* Reduz padding em telas menores */
+                font-size: 0.875rem; /* Fonte menor */
+            }
+            .button-group {
+                flex-direction: column; /* Botões empilhados em telas pequenas */
+                gap: 0.75rem;
+            }
+            button {
+                width: 100%; /* Botões ocupam 100% da largura em telas pequenas */
+            }
+        }

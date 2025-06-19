@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Gerentes</title>
+    <link rel="stylesheet" href="gerenciar.css">
+    <style>
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .file-btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .load-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .load-btn:hover {
+            background-color: #218838;
+        }
+        
+        .save-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .save-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .model-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .model-btn:hover {
+            background-color: #545b62;
+        }
+        
+        .tipo-gerente {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .edit {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .edit:hover {
+            background-color: #e0a800;
+        }
+        
+        .delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .delete:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciar Gerentes</h1>
+        <div class="warning-message">
+            <strong>⚠️ Atenção:</strong> Apenas gerentes podem acessar esta página e gerenciar outros gerentes.
+        </div>
+        
+        <div class="form-container">
+            <form id="admin-form">
+                <input type="hidden" id="admin-id">
+                
+                <div>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" required placeholder="Digite o email do gerente">
+                </div>
+                
+                <div>
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" required placeholder="Digite a senha (mín. 6 caracteres)">
+                </div>
+                
+                <input type="hidden" id="tipo" value="gerente">
+                
+                <div class="button-group">
+                    <button type="submit">Salvar Gerente</button>
+                    <button type="button" id="cancel-edit" style="display:none;">Cancelar Edição</button>
+                </div>
+            </form>
+        </div>
+        
+        <hr>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h2>Lista de Gerentes</h2>
+            <div class="file-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="carregarCSV()" class="file-btn load-btn" title="Carregar dados de um arquivo CSV">
+                    📁 Carregar CSV
+                </button>
+                <button onclick="baixarCSV()" class="file-btn save-btn" title="Baixar dados atuais como arquivo CSV">
+                    💾 Baixar CSV
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Tipo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4" class="loading">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="back-button">
+            <button onclick="voltarAoMenu()">← Voltar ao Menu</button>
+        </div>
+    </div>
+
+    <script src="gerenciar.js"></script>
+</body>
+</html>

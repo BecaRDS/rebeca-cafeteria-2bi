@@ -6,7 +6,8 @@ const path = require('path');
 
 const app = express(); // ✅ app é criado aqui
 const PORT = 3000;
-const CSV_FILE = 'products.csv';
+const CSV_FILE = 'produtos.csv';
+const ADMIN_CSV_FILE = 'administradores.csv';
 
 // ✅ Expor a pasta de imagens publicamente
 app.use('/img', express.static(path.join(__dirname, 'img')));
@@ -15,7 +16,9 @@ app.use(cors());
 app.use(bodyParser.json());
 
 let products = [];
+let administrators = [];
 let nextId = 1;
+let nextAdminId = 1;
 
 // Carrega produtos do CSV
 function loadDataFromCSV() {
@@ -48,6 +51,35 @@ function loadDataFromCSV() {
     }
 }
 
+// Carrega administradores do CSV
+function loadAdministratorsFromCSV() {
+    try {
+        if (fs.existsSync(ADMIN_CSV_FILE)) {
+            const data = fs.readFileSync(ADMIN_CSV_FILE, 'utf8');
+            const lines = data.split('\n').filter(line => line.trim() !== '');
+            const headers = lines[0].split(','); // email,senha,tipo
+
+            administrators = lines.slice(1).map((line, index) => {
+                const [email, senha, tipo] = line.split(',');
+                return {
+                    id: index + 1,
+                    email: email.trim(),
+                    senha: senha.trim(),
+                    tipo: tipo.trim()
+                };
+            });
+
+            nextAdminId = administrators.length + 1;
+            console.log('Administradores carregados do CSV com sucesso!');
+        } else {
+            fs.writeFileSync(ADMIN_CSV_FILE, 'email,senha,tipo\n');
+            console.log('Arquivo CSV de administradores criado.');
+        }
+    } catch (error) {
+        console.error('Erro ao carregar o CSV de administradores:', error);
+    }
+}
+
 // Salva produtos no CSV
 function saveDataToCSV() {
     try {
@@ -63,17 +95,33 @@ function saveDataToCSV() {
     }
 }
 
+// Salva administradores no CSV
+function saveAdministratorsToCSV() {
+    try {
+        let csvData = 'email,senha,tipo\n';
+        administrators.forEach(admin => {
+            csvData += `${admin.email},${admin.senha},${admin.tipo}\n`;
+        });
+        fs.writeFileSync(ADMIN_CSV_FILE, csvData);
+        console.log('Administradores salvos no CSV.');
+    } catch (error) {
+        console.error('Erro ao salvar o CSV de administradores:', error);
+    }
+}
+
 // Salvamento automático a cada 1 minuto
 function setupAutoSave() {
     setInterval(() => {
         saveDataToCSV();
+        saveAdministratorsToCSV();
     }, 60000);
 }
 
 loadDataFromCSV();
+loadAdministratorsFromCSV();
 setupAutoSave();
 
-// Rotas da API
+// Rotas da API - Produtos
 
 app.get('/products', (req, res) => {
     res.json(products);
@@ -145,11 +193,127 @@ app.delete('/products/:id', (req, res) => {
     res.status(204).send();
 });
 
+// Rotas da API - Administradores
+
+app.get('/administrators', (req, res) => {
+    // Retorna administradores sem a senha por segurança
+    const adminsWithoutPassword = administrators.map(admin => ({
+        id: admin.id,
+        email: admin.email,
+        tipo: admin.tipo
+    }));
+    res.json(adminsWithoutPassword);
+});
+
+app.get('/administrators/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const admin = administrators.find(a => a.id === id);
+    if (admin) {
+        // Retorna sem a senha por segurança
+        res.json({
+            id: admin.id,
+            email: admin.email,
+            tipo: admin.tipo
+        });
+    } else {
+        res.status(404).json({ message: 'Administrador não encontrado' });
+    }
+});
+
+app.post('/administrators', (req, res) => {
+    const { email, senha, tipo } = req.body;
+
+    if (!email || !senha || !tipo) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+    }
+
+    // Verificar se o email já existe
+    const existingAdmin = administrators.find(a => a.email === email);
+    if (existingAdmin) {
+        return res.status(400).json({ message: 'Email já cadastrado' });
+    }
+
+    const newAdmin = {
+        id: nextAdminId++,
+        email,
+        senha,
+        tipo
+    };
+
+    administrators.push(newAdmin);
+    
+    // Retorna sem a senha por segurança
+    res.status(201).json({
+        id: newAdmin.id,
+        email: newAdmin.email,
+        tipo: newAdmin.tipo
+    });
+});
+
+app.put('/administrators/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { email, senha, tipo } = req.body;
+    const index = administrators.findIndex(a => a.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({ message: 'Administrador não encontrado' });
+    }
+
+    if (!email || !senha || !tipo) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+    }
+
+    // Verificar se o email já existe em outro administrador
+    const existingAdmin = administrators.find(a => a.email === email && a.id !== id);
+    if (existingAdmin) {
+        return res.status(400).json({ message: 'Email já cadastrado para outro administrador' });
+    }
+
+    const updatedAdmin = {
+        id,
+        email,
+        senha,
+        tipo
+    };
+
+    administrators[index] = updatedAdmin;
+    
+    // Retorna sem a senha por segurança
+    res.json({
+        id: updatedAdmin.id,
+        email: updatedAdmin.email,
+        tipo: updatedAdmin.tipo
+    });
+});
+
+app.delete('/administrators/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = administrators.findIndex(a => a.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({ message: 'Administrador não encontrado' });
+    }
+
+    // Verificar se não é o último gerente
+    const admin = administrators[index];
+    if (admin.tipo === 'gerente') {
+        const gerentesCount = administrators.filter(a => a.tipo === 'gerente').length;
+        if (gerentesCount <= 1) {
+            return res.status(400).json({ message: 'Não é possível excluir o último gerente' });
+        }
+    }
+
+    administrators.splice(index, 1);
+    res.status(204).send();
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor rodando em http://localhost:${PORT}`);
 });
 
 process.on('SIGINT', () => {
     saveDataToCSV();
+    saveAdministratorsToCSV();
     process.exit();
 });
+

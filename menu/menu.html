@@ -7,26 +7,18 @@
   <link rel="stylesheet" href="./menu.css">
 </head>
 <body>
-  <header>
+ <header>
     <h2>CAFETERIA DA REBECA ☕</h2>
-  </header>
+    <nav style="margin-bottom: 10px;">
+        <button onclick="location.href='../login/login.html'">Login</button>
+        <div id="gerente-botoes" style="display: none;">
+            <button onclick="location.href='../gerenciar-produtos/gerenciar-produtos.html'">📦 Produtos</button>
+            <button onclick="location.href='../gerenciar/gerenciar.html'">👩‍💼 Administradores</button>
+        </div>
+    </nav>
+</header>
 
   <main id="menu-container"></main>
-
-  <!-- Área para o gerente -->
-  <div id="gerente-opcoes" style="display: none; padding: 20px;">
-    <h3>Opções do Gerente</h3>
-
-    <input type="text" id="buscaProduto" placeholder="Buscar produto por nome..." oninput="buscarProduto()" style="margin-bottom: 10px; padding: 5px; width: 300px;">
-
-    <div style="margin-top: 10px;">
-      <button onclick="mostrarFormularioAdicionar()">➕ Adicionar Produto</button>
-      <button onclick="mostrarFormularioEditar()">📝 Editar Produto</button>
-      <button onclick="mostrarFormularioExcluir()">🗑️ Excluir Produto</button>
-    </div>
-
-    <div id="formulario-gerente" style="margin-top: 20px;"></div>
-  </div>
 
   <div class="barra-inferior">
     <button onclick="location.href='../carrinho/carrinho.html'">🛒</button>
@@ -38,128 +30,6 @@
   </footer>
 
   <script src="menu.js"></script>
-
-  <script>
-    // Verifica se é gerente
-    const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario'));
-    if (usuarioLogado && usuarioLogado.tipo === 'gerente') {
-      document.getElementById('gerente-opcoes').style.display = 'block';
-    }
-
-    // Buscar por nome
-    function buscarProduto() {
-      const termo = document.getElementById('buscaProduto').value.toLowerCase();
-      const cards = document.querySelectorAll('.menu-item');
-      cards.forEach(card => {
-        const nome = card.querySelector('h3').innerText.toLowerCase();
-        card.style.display = nome.includes(termo) ? 'block' : 'none';
-      });
-    }
-
-    // Adicionar produto
-    function mostrarFormularioAdicionar() {
-      document.getElementById('formulario-gerente').innerHTML = `
-        <h4>Adicionar Produto</h4>
-        <input type="text" id="nome" placeholder="Nome"><br>
-        <input type="number" id="preco" placeholder="Preço"><br>
-        <input type="text" id="imagem" placeholder="Nome da imagem"><br>
-        <textarea id="descricao" placeholder="Descrição"></textarea><br>
-        <button onclick="adicionarProduto()">Salvar</button>
-      `;
-    }
-
-    function adicionarProduto() {
-      const nome = document.getElementById('nome').value;
-      const preco = document.getElementById('preco').value;
-      const imagem = document.getElementById('imagem').value;
-      const descricao = document.getElementById('descricao').value;
-
-      if (!nome || !preco || !imagem || !descricao) {
-        alert("Todos os campos são obrigatórios.");
-        return;
-      }
-
-      fetch('http://localhost:3000/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, preco, imagem, descricao })
-      })
-      .then(res => res.json())
-      .then(() => {
-        alert("Produto adicionado com sucesso!");
-        location.reload();
-      });
-    }
-
-    // Editar produto
-    function mostrarFormularioEditar() {
-      document.getElementById('formulario-gerente').innerHTML = `
-        <h4>Editar Produto</h4>
-        <input type="number" id="idEditar" placeholder="ID do produto"><br>
-        <input type="text" id="nome" placeholder="Novo nome"><br>
-        <input type="number" id="preco" placeholder="Novo preço"><br>
-        <input type="text" id="imagem" placeholder="Nova imagem"><br>
-        <textarea id="descricao" placeholder="Nova descrição"></textarea><br>
-        <button onclick="editarProduto()">Salvar Alterações</button>
-      `;
-    }
-
-    function editarProduto() {
-      const id = document.getElementById('idEditar').value;
-      const nome = document.getElementById('nome').value;
-      const preco = document.getElementById('preco').value;
-      const imagem = document.getElementById('imagem').value;
-      const descricao = document.getElementById('descricao').value;
-
-      if (!id || !nome || !preco || !imagem || !descricao) {
-        alert("Todos os campos são obrigatórios.");
-        return;
-      }
-
-      fetch(`http://localhost:3000/products/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, preco, imagem, descricao })
-      })
-      .then(res => {
-        if (res.ok) {
-          alert("Produto atualizado!");
-          location.reload();
-        } else {
-          alert("Produto não encontrado.");
-        }
-      });
-    }
-
-    // Excluir produto
-    function mostrarFormularioExcluir() {
-      document.getElementById('formulario-gerente').innerHTML = `
-        <h4>Excluir Produto</h4>
-        <input type="number" id="idExcluir" placeholder="ID do produto"><br>
-        <button onclick="excluirProduto()">Excluir</button>
-      `;
-    }
-
-    function excluirProduto() {
-      const id = document.getElementById('idExcluir').value;
-
-      if (!id) {
-        alert("Informe o ID do produto.");
-        return;
-      }
-
-      fetch(`http://localhost:3000/products/${id}`, {
-        method: 'DELETE'
-      })
-      .then(res => {
-        if (res.ok) {
-          alert("Produto excluído.");
-          location.reload();
-        } else {
-          alert("Produto não encontrado.");
-        }
-      });
-    }
-  </script>
 </body>
 </html>
+
