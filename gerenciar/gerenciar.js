@@ -3,6 +3,13 @@ const CSV_FILE_NAME = 'administradores.csv';
 let gerentes = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+    // Verificar se o usuário é gerente antes de tudo
+    if (!verificarPermissaoGerente()) {
+        alert('Acesso negado! Apenas gerentes podem acessar esta página.');
+        window.location.href = '../menu/menu.html';
+        return;
+    }
+
     // Elementos do DOM
     const adminForm = document.getElementById("admin-form");
     const adminIdInput = document.getElementById("admin-id");
@@ -16,10 +23,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Inicializar aplicação
     await initializeApp();
 
+    // Função para verificar permissão de gerente
+    function verificarPermissaoGerente() {
+        try {
+            const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario'));
+            return usuarioLogado && usuarioLogado.tipo === 'gerente';
+        } catch (error) {
+            console.error('Erro ao verificar permissões:', error);
+            return false;
+        }
+    }
+
     // Função para inicializar a aplicação
     async function initializeApp() {
         try {
-            // Verifica se existe dados salvos no arquivo
             await loadAdministrators();
             showFileInstructions();
         } catch (error) {
@@ -33,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (gerentes.length === 0) {
             adminTableBody.innerHTML = `
                 <tr><td colspan='4' class='loading'>
-                    Nenhum gerente cadastrado. Use o botão "Carregar CSV" para importar dados existentes ou comece cadastrando um novo gerente.
+                    Nenhum gerente cadastrado. Use o formulário acima para cadastrar novos gerentes.
                 </td></tr>
             `;
         }
@@ -48,11 +65,33 @@ document.addEventListener("DOMContentLoaded", async () => {
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = async function(e) {
                     try {
-                        parseCSVContent(e.target.result);
-                        loadAdministrators();
-                        showSuccess(`Arquivo ${file.name} carregado com sucesso! ${gerentes.filter(g => g.tipo === 'gerente').length} gerentes encontrados.`);
+                        const administradoresCSV = parseCSVContent(e.target.result);
+                        let adicionados = 0;
+
+                        // Enviar cada administrador para a API
+                        for (const admin of administradoresCSV) {
+                            try {
+                                const response = await fetch('http://localhost:3000/administrators', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(admin)
+                                });
+
+                                if (response.ok) {
+                                    adicionados++;
+                                } else {
+                                    const errorData = await response.json();
+                                    console.warn(`Erro ao adicionar ${admin.email}: ${errorData.message}`);
+                                }
+                            } catch (error) {
+                                console.error(`Erro ao adicionar ${admin.email}:`, error);
+                            }
+                        }
+
+                        await loadAdministrators();
+                        showSuccess(`Arquivo ${file.name} processado! ${adicionados} de ${administradoresCSV.length} gerentes adicionados.`);
                     } catch (error) {
                         alert(`Erro ao ler arquivo CSV: ${error.message}`);
                     }
@@ -68,8 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const lines = content.split('\n').filter(line => line.trim() !== '');
         
         if (lines.length === 0) {
-            gerentes = [];
-            return;
+            throw new Error('Arquivo CSV vazio');
         }
 
         // Verifica se tem cabeçalho correto
@@ -79,12 +117,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // Carrega dados
-        gerentes = [];
+        const administradores = [];
         for (let i = 1; i < lines.length; i++) {
             const values = parseCSVLine(lines[i]);
-            if (values.length >= 3 && values[0].trim()) { // Ignora linhas vazias
-                gerentes.push({
-                    id: i, // ID baseado na linha
+            if (values.length >= 3 && values[0].trim()) {
+                administradores.push({
                     email: values[0].trim(),
                     senha: values[1].trim(),
                     tipo: values[2].trim()
@@ -92,7 +129,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
         }
 
-        console.log(`${gerentes.length} registros carregados do CSV`);
+        return administradores;
     }
 
     // Função para fazer parse de uma linha CSV (trata vírgulas dentro de aspas)
@@ -128,7 +165,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         let csvContent = 'email,senha,tipo\n';
         
         gerentes.forEach(gerente => {
-            // Escapa vírgulas e aspas nos dados
             const email = gerente.email.includes(',') || gerente.email.includes('"') ? 
                 `"${gerente.email.replace(/"/g, '""')}"` : gerente.email;
             const senha = gerente.senha.includes(',') || gerente.senha.includes('"') ? 
@@ -153,20 +189,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         showSuccess('Arquivo CSV baixado com sucesso!');
     };
 
-    // Função para carregar e exibir gerentes
+    // Função para carregar e exibir gerentes da API
     async function loadAdministrators() {
         try {
             adminTableBody.innerHTML = "<tr><td colspan='4' class='loading'>Carregando...</td></tr>";
             
-            const administrators = gerentes.filter(admin => admin.tipo === 'gerente');
+            const response = await fetch('http://localhost:3000/administrators');
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
             
-            if (administrators.length === 0) {
+            const administrators = await response.json();
+            gerentes = administrators.filter(admin => admin.tipo === 'gerente');
+            
+            if (gerentes.length === 0) {
                 adminTableBody.innerHTML = "<tr><td colspan='4' class='loading'>Nenhum gerente cadastrado</td></tr>";
                 return;
             }
             
             adminTableBody.innerHTML = "";
-            administrators.forEach(admin => {
+            gerentes.forEach(admin => {
                 const row = adminTableBody.insertRow();
                 row.innerHTML = `
                     <td>${admin.id}</td>
@@ -190,11 +232,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
-    // Função para verificar se email já existe
-    function emailJaExiste(email, excludeId = null) {
-        return gerentes.some(g => g.email.toLowerCase() === email.toLowerCase() && g.id !== excludeId);
-    }
-
     // Função para adicionar ou atualizar um gerente
     adminForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -215,35 +252,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        if (emailJaExiste(email, id ? parseInt(id) : null)) {
-            alert("Este email já está cadastrado. Use um email diferente.");
-            return;
-        }
-
         try {
+            let response;
+            
             if (id) {
                 // Atualizar gerente existente
-                const index = gerentes.findIndex(g => g.id === parseInt(id));
-                if (index !== -1) {
-                    gerentes[index] = { 
-                        id: parseInt(id), 
-                        email: email, 
-                        senha: senha, 
-                        tipo: tipo 
-                    };
-                    showSuccess("Gerente atualizado com sucesso! Lembre-se de baixar o CSV atualizado.");
-                }
+                response = await fetch(`http://localhost:3000/administrators/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha, tipo })
+                });
             } else {
                 // Adicionar novo gerente
-                const newId = gerentes.length > 0 ? Math.max(...gerentes.map(g => g.id)) + 1 : 1;
-                gerentes.push({ 
-                    id: newId, 
-                    email: email, 
-                    senha: senha, 
-                    tipo: tipo 
+                response = await fetch('http://localhost:3000/administrators', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, senha, tipo })
                 });
-                showSuccess("Gerente adicionado com sucesso! Lembre-se de baixar o CSV atualizado.");
             }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao salvar gerente');
+            }
+
+            const message = id ? "Gerente atualizado com sucesso!" : "Gerente adicionado com sucesso!";
+            showSuccess(message);
 
             resetForm();
             await loadAdministrators();
@@ -274,7 +308,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (gerente) {
             adminIdInput.value = gerente.id;
             emailInput.value = gerente.email;
-            senhaInput.value = gerente.senha;
+            senhaInput.value = gerente.senha || '';
             saveButton.textContent = "Atualizar Gerente";
             cancelButton.style.display = "inline-block";
             
@@ -288,40 +322,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.excluirGerente = async function(id) {
         if (confirm("Tem certeza que deseja excluir este gerente?")) {
             try {
-                const index = gerentes.findIndex(g => g.id === id);
-                if (index !== -1) {
-                    const gerenteRemovido = gerentes[index];
-                    gerentes.splice(index, 1);
-                    
-                    // Reordena IDs
-                    gerentes.forEach((gerente, index) => {
-                        gerente.id = index + 1;
-                    });
-                    
-                    showSuccess(`Gerente ${gerenteRemovido.email} excluído com sucesso! Lembre-se de baixar o CSV atualizado.`);
-                    await loadAdministrators();
+                const response = await fetch(`http://localhost:3000/administrators/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Erro ao excluir gerente');
                 }
+                
+                showSuccess('Gerente excluído com sucesso!');
+                await loadAdministrators();
+                
             } catch (error) {
                 console.error("Erro ao excluir gerente:", error);
                 alert(`Erro ao excluir gerente: ${error.message}`);
             }
         }
-    };
-
-    // Função para criar CSV modelo
-    window.criarCSVModelo = function() {
-        const csvContent = 'email,senha,tipo\nadmin@exemplo.com,123456,gerente\n';
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'modelo_administradores.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showSuccess('Arquivo modelo CSV baixado! Edite-o e use "Carregar CSV" para importar.');
     };
 });
 
@@ -346,11 +363,5 @@ function showSuccess(message) {
 
 // Função para voltar ao menu
 function voltarAoMenu() {
-    if (gerentes.length > 0) {
-        const sair = confirm("Você tem dados não salvos. Deseja baixar o CSV antes de sair?");
-        if (sair) {
-            baixarCSV();
-        }
-    }
     window.location.href = '../menu/menu.html';
 }

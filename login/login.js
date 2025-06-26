@@ -1,8 +1,14 @@
 // Configurações
 const USUARIOS_KEY = 'usuarios';
 const TOKEN_RECUPERACAO_KEY = 'tokenRecuperacao';
-const GERENTE_EMAIL = 'rebeca@cafeteria.com';
-const GERENTE_SENHA = 'admin123';
+const API_BASE_URL = 'http://localhost:3000';
+
+// Administradores hardcoded (baseado no CSV)
+const ADMINS_HARDCODED = [
+    { email: 'rebeca@cafeteria.com', senha: 'admin123', tipo: 'gerente' },
+    { email: 'cliente1@cafeteria.com', senha: '1234567', tipo: 'gerente' },
+    { email: 'cliente@cafeteria.com', senha: '1234567', tipo: 'gerente' }
+];
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,82 +18,166 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Só redireciona automaticamente se não for um logout forçado ou acesso manual
     if (usuarioLogado && redirect !== 'manual' && !forceLogin) {
-        redirecionarUsuario(JSON.parse(usuarioLogado), redirect);
+        try {
+            redirecionarUsuario(JSON.parse(usuarioLogado), redirect);
+        } catch (error) {
+            console.error('Erro ao analisar dados do usuário:', error);
+            sessionStorage.removeItem('usuario');
+        }
     }
 
-    document.getElementById('form-login').addEventListener('submit', fazerLogin);
-    document.getElementById('recuperacaoSenha').style.display = 'none';
+    // Event listeners
+    const formLogin = document.getElementById('form-login');
+    if (formLogin) {
+        formLogin.addEventListener('submit', fazerLogin);
+    }
+
+    // Esconder seção de recuperação por padrão
+    const recuperacaoSection = document.getElementById('recuperacaoSenha');
+    if (recuperacaoSection) {
+        recuperacaoSection.style.display = 'none';
+    }
 });
 
-// Função para obter URL de redirecionamento da query string
+// Função para obter URL de redirecionamento
 function getRedirectUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('redirect') || '../menu/menu.html';
 }
 
-// Função para verificar se é um logout forçado ou acesso manual ao login
+// Função para verificar se é um logout forçado
 function getForceLoginParam() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get('logout') === 'true' || urlParams.get('force') === 'true';
 }
 
-function fazerLogin(e) {
+// Função principal de login - SIMPLIFICADA
+async function fazerLogin(e) {
     e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const senha = document.getElementById('senha').value;
-
-    if (!email || !senha) return mostrarMensagem('Por favor, preencha todos os campos', 'error');
-
-    if (email === GERENTE_EMAIL && senha === GERENTE_SENHA) {
-        const usuario = { email, tipo: 'gerente' };
-        sessionStorage.setItem('usuario', JSON.stringify(usuario));
-        mostrarMensagem('Login como gerente realizado!', 'success');
-        const redirect = getRedirectUrl();
-        return setTimeout(() => redirecionarUsuario(usuario, redirect), 1000);
+    
+    const emailElement = document.getElementById('email');
+    const senhaElement = document.getElementById('senha');
+    
+    if (!emailElement || !senhaElement) {
+        return mostrarMensagem('Elementos do formulário não encontrados', 'error');
     }
 
-    const usuarios = obterUsuarios();
-    const usuario = usuarios.find(u => u.email === email && u.senha === senha);
+    const email = emailElement.value.trim();
+    const senha = senhaElement.value;
 
-    if (usuario) {
-        sessionStorage.setItem('usuario', JSON.stringify(usuario));
-        mostrarMensagem('Login realizado com sucesso!', 'success');
-        const redirect = getRedirectUrl();
-        setTimeout(() => redirecionarUsuario(usuario, redirect), 1000);
-    } else {
+    if (!email || !senha) {
+        return mostrarMensagem('Por favor, preencha todos os campos', 'error');
+    }
+
+    if (!validarEmail(email)) {
+        return mostrarMensagem('Por favor, insira um email válido', 'error');
+    }
+
+    try {
+        // 1. Primeiro verificar administradores hardcoded
+        const adminEncontrado = ADMINS_HARDCODED.find(admin => 
+            admin.email === email && admin.senha === senha
+        );
+
+        if (adminEncontrado) {
+            const userData = { 
+                email: adminEncontrado.email, 
+                tipo: adminEncontrado.tipo 
+            };
+            sessionStorage.setItem('usuario', JSON.stringify(userData));
+            mostrarMensagem('Login de administrador realizado com sucesso!', 'success');
+            const redirect = getRedirectUrl();
+            setTimeout(() => redirecionarUsuario(userData, redirect), 1000);
+            return;
+        }
+
+        // 2. Se não é admin, verificar usuários locais (clientes)
+        const usuariosLocais = obterUsuarios();
+        const usuarioLocal = usuariosLocais.find(u => 
+            u.email === email && u.senha === senha
+        );
+        
+        if (usuarioLocal) {
+            const userData = { 
+                email: usuarioLocal.email, 
+                tipo: usuarioLocal.tipo || 'cliente' 
+            };
+            sessionStorage.setItem('usuario', JSON.stringify(userData));
+            mostrarMensagem('Login realizado com sucesso!', 'success');
+            const redirect = getRedirectUrl();
+            setTimeout(() => redirecionarUsuario(userData, redirect), 1000);
+            return;
+        }
+
+        // 3. Se chegou até aqui, credenciais inválidas
         mostrarMensagem('Email ou senha incorretos', 'error');
+        
+    } catch (error) {
+        console.error('Erro no login:', error);
+        mostrarMensagem('Erro ao realizar login. Tente novamente.', 'error');
     }
 }
 
 function redirecionarUsuario(usuario, redirectUrl = '../menu/menu.html') {
+    if (!usuario || !usuario.email) {
+        console.error('Dados do usuário inválidos para redirecionamento');
+        return;
+    }
     window.location.href = redirectUrl;
 }
 
 function criarConta() {
+    // Verificar se SweetAlert2 está disponível
+    if (typeof Swal === 'undefined') {
+        alert('Biblioteca SweetAlert2 não carregada. Verifique a conexão com a internet.');
+        return;
+    }
+
     Swal.fire({
         title: 'Criar Nova Conta',
         html:
-            '<input id="swal-email" class="swal2-input" placeholder="Email">' +
+            '<input id="swal-email" class="swal2-input" placeholder="Email" type="email">' +
             '<input id="swal-senha" type="password" class="swal2-input" placeholder="Senha">' +
             '<input id="swal-confirmar" type="password" class="swal2-input" placeholder="Confirmar Senha">',
         focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Criar Conta',
+        cancelButtonText: 'Cancelar',
         preConfirm: () => {
             const email = document.getElementById('swal-email').value.trim();
             const senha = document.getElementById('swal-senha').value;
             const confirmar = document.getElementById('swal-confirmar').value;
 
-            if (!email || !senha || !confirmar) return Swal.showValidationMessage('Todos os campos são obrigatórios');
-            if (!validarEmail(email)) return Swal.showValidationMessage('Por favor, insira um email válido');
-            if (senha !== confirmar) return Swal.showValidationMessage('As senhas não coincidem');
-            if (senha.length < 6) return Swal.showValidationMessage('A senha deve ter pelo menos 6 caracteres');
+            if (!email || !senha || !confirmar) {
+                Swal.showValidationMessage('Todos os campos são obrigatórios');
+                return false;
+            }
+            if (!validarEmail(email)) {
+                Swal.showValidationMessage('Por favor, insira um email válido');
+                return false;
+            }
+            if (senha !== confirmar) {
+                Swal.showValidationMessage('As senhas não coincidem');
+                return false;
+            }
+            if (senha.length < 6) {
+                Swal.showValidationMessage('A senha deve ter pelo menos 6 caracteres');
+                return false;
+            }
 
             return { email, senha };
         }
     }).then((result) => {
         if (result.isConfirmed) {
             const { email, senha } = result.value;
-            const usuarios = obterUsuarios();
+            
+            // Verificar se email já existe nos admins
+            const isAdminEmail = ADMINS_HARDCODED.some(admin => admin.email === email);
+            if (isAdminEmail) {
+                return Swal.fire('Erro', 'Este email já está reservado para administradores', 'error');
+            }
 
+            const usuarios = obterUsuarios();
             if (usuarios.find(u => u.email === email)) {
                 return Swal.fire('Erro', 'Este email já está cadastrado', 'error');
             }
@@ -100,6 +190,11 @@ function criarConta() {
 }
 
 function esqueciSenha() {
+    if (typeof Swal === 'undefined') {
+        alert('Biblioteca SweetAlert2 não carregada.');
+        return;
+    }
+
     Swal.fire({
         title: 'Recuperar Senha',
         input: 'email',
@@ -114,120 +209,191 @@ function esqueciSenha() {
     }).then((result) => {
         if (result.isConfirmed) {
             const email = result.value;
+            
+            // Verificar se é email de admin
+            const isAdminEmail = ADMINS_HARDCODED.some(admin => admin.email === email);
+            if (isAdminEmail) {
+                return Swal.fire('Erro', 'Não é possível recuperar senha de administrador por este método', 'error');
+            }
+
             const usuarios = obterUsuarios();
             const usuario = usuarios.find(u => u.email === email);
 
-            if (!usuario) return Swal.fire('Erro', 'Nenhuma conta encontrada com este email', 'error');
+            if (!usuario) {
+                return Swal.fire('Erro', 'Nenhuma conta encontrada com este email', 'error');
+            }
 
             const token = Math.floor(100000 + Math.random() * 900000).toString();
-            const validade = Date.now() + 300000;
+            const validade = Date.now() + 300000; // 5 minutos
 
             localStorage.setItem(TOKEN_RECUPERACAO_KEY, JSON.stringify({ email, token, validade }));
 
             Swal.fire({
                 title: 'Token de Recuperação',
                 html: `Token gerado para <strong>${email}</strong><br><br><strong>Token:</strong> ${token}<br><small>Válido por 5 minutos</small>`,
-                icon: 'info'
+                icon: 'info',
+                confirmButtonText: 'Entendi'
             });
 
-            document.getElementById('recuperacaoSenha').style.display = 'block';
-            document.getElementById('form-login').style.display = 'none';
+            // Mostrar seção de recuperação
+            const recuperacaoSection = document.getElementById('recuperacaoSenha');
+            const formLogin = document.getElementById('form-login');
+            
+            if (recuperacaoSection && formLogin) {
+                recuperacaoSection.style.display = 'block';
+                formLogin.style.display = 'none';
+            }
         }
     });
 }
 
 function confirmarNovaSenha() {
-    const tokenInserido = document.getElementById('token').value.trim();
-    const novaSenha = document.getElementById('novaSenha').value;
+    const tokenElement = document.getElementById('token');
+    const novaSenhaElement = document.getElementById('novaSenha');
+    
+    if (!tokenElement || !novaSenhaElement) {
+        return mostrarMensagem('Elementos do formulário não encontrados', 'error');
+    }
 
-    if (!tokenInserido || !novaSenha) return mostrarMensagem('Por favor, preencha todos os campos', 'error');
-    if (novaSenha.length < 6) return mostrarMensagem('A senha deve ter pelo menos 6 caracteres', 'error');
+    const tokenInserido = tokenElement.value.trim();
+    const novaSenha = novaSenhaElement.value;
 
-    const tokenSalvo = JSON.parse(localStorage.getItem(TOKEN_RECUPERACAO_KEY));
-    if (!tokenSalvo || Date.now() > tokenSalvo.validade || tokenSalvo.token !== tokenInserido)
+    if (!tokenInserido || !novaSenha) {
+        return mostrarMensagem('Por favor, preencha todos os campos', 'error');
+    }
+    
+    if (novaSenha.length < 6) {
+        return mostrarMensagem('A senha deve ter pelo menos 6 caracteres', 'error');
+    }
+
+    const tokenSalvo = JSON.parse(localStorage.getItem(TOKEN_RECUPERACAO_KEY) || 'null');
+    
+    if (!tokenSalvo || Date.now() > tokenSalvo.validade || tokenSalvo.token !== tokenInserido) {
         return mostrarMensagem('Token inválido, incorreto ou expirado', 'error');
+    }
 
     const usuarios = obterUsuarios();
     const usuarioIndex = usuarios.findIndex(u => u.email === tokenSalvo.email);
 
-    if (usuarioIndex === -1) return mostrarMensagem('Usuário não encontrado', 'error');
-    if (usuarios[usuarioIndex].senha === novaSenha) return mostrarMensagem('A nova senha deve ser diferente da atual', 'error');
+    if (usuarioIndex === -1) {
+        return mostrarMensagem('Usuário não encontrado', 'error');
+    }
+    
+    if (usuarios[usuarioIndex].senha === novaSenha) {
+        return mostrarMensagem('A nova senha deve ser diferente da atual', 'error');
+    }
 
     usuarios[usuarioIndex].senha = novaSenha;
     salvarUsuarios(usuarios);
     localStorage.removeItem(TOKEN_RECUPERACAO_KEY);
 
     mostrarMensagem('Senha alterada com sucesso!', 'success');
+    
     setTimeout(() => {
-        document.getElementById('recuperacaoSenha').style.display = 'none';
-        document.getElementById('form-login').style.display = 'block';
-        document.getElementById('token').value = '';
-        document.getElementById('novaSenha').value = '';
+        voltarParaLogin();
     }, 2000);
 }
 
-function entrarComoGerente() {
-    Swal.fire({
-        title: 'Acesso Gerente',
-        html:
-            '<input id="swal-email" class="swal2-input" placeholder="Email" value="rebeca@cafeteria.com">' +
-            '<input id="swal-senha" type="password" class="swal2-input" placeholder="Senha">',
-        focusConfirm: false,
-        preConfirm: () => {
-            const email = document.getElementById('swal-email').value.trim();
-            const senha = document.getElementById('swal-senha').value;
-            if (!email || !senha) return Swal.showValidationMessage('Por favor, preencha todos os campos');
-            return { email, senha };
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { email, senha } = result.value;
-            if (email === GERENTE_EMAIL && senha === GERENTE_SENHA) {
-                sessionStorage.setItem('usuario', JSON.stringify({ email, tipo: 'gerente' }));
-                const redirect = getRedirectUrl();
-                Swal.fire('Sucesso', 'Login como gerente realizado!', 'success').then(() => {
-                    window.location.href = redirect;
-                });
-            } else {
-                Swal.fire('Erro', 'Credenciais de gerente inválidas', 'error');
-            }
-        }
-    });
+function voltarParaLogin() {
+    const recuperacaoSection = document.getElementById('recuperacaoSenha');
+    const formLogin = document.getElementById('form-login');
+    
+    if (recuperacaoSection && formLogin) {
+        recuperacaoSection.style.display = 'none';
+        formLogin.style.display = 'block';
+    }
+    
+    // Limpar campos
+    const tokenElement = document.getElementById('token');
+    const novaSenhaElement = document.getElementById('novaSenha');
+    
+    if (tokenElement) tokenElement.value = '';
+    if (novaSenhaElement) novaSenhaElement.value = '';
+    
+    // Remover token de recuperação
+    localStorage.removeItem(TOKEN_RECUPERACAO_KEY);
 }
 
+// Funções auxiliares
 function obterUsuarios() {
-    return JSON.parse(localStorage.getItem(USUARIOS_KEY)) || [];
+    try {
+        return JSON.parse(localStorage.getItem(USUARIOS_KEY) || '[]');
+    } catch (error) {
+        console.error('Erro ao obter usuários do localStorage:', error);
+        return [];
+    }
 }
 
 function salvarUsuarios(usuarios) {
-    localStorage.setItem(USUARIOS_KEY, JSON.stringify(usuarios));
+    try {
+        localStorage.setItem(USUARIOS_KEY, JSON.stringify(usuarios));
+    } catch (error) {
+        console.error('Erro ao salvar usuários no localStorage:', error);
+    }
 }
 
 function mostrarMensagem(msg, tipo = 'info') {
     const element = document.getElementById('msg-status');
+    if (!element) {
+        console.warn('Elemento msg-status não encontrado');
+        return;
+    }
+
     element.textContent = msg;
     element.className = `status-message ${tipo}`;
+    element.style.display = 'block';
 
     if (tipo !== 'success') {
         setTimeout(() => {
             element.textContent = '';
             element.className = 'status-message';
+            element.style.display = 'none';
         }, 5000);
     }
 }
 
 function validarEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
 }
 
 function togglePassword() {
     const senhaInput = document.getElementById('senha');
     const toggleIcon = document.querySelector('.toggle-password i');
+    
+    if (!senhaInput || !toggleIcon) {
+        console.warn('Elementos para toggle de senha não encontrados');
+        return;
+    }
+
     if (senhaInput.type === 'password') {
         senhaInput.type = 'text';
         toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
     } else {
         senhaInput.type = 'password';
         toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
+// Funções globais para outras páginas
+function logout() {
+    sessionStorage.removeItem('usuario');
+    window.location.href = '../login/login.html?logout=true';
+}
+
+function verificarLogin() {
+    const usuario = sessionStorage.getItem('usuario');
+    if (!usuario) {
+        window.location.href = '../login/login.html?force=true';
+        return null;
+    }
+    
+    try {
+        return JSON.parse(usuario);
+    } catch (error) {
+        console.error('Erro ao analisar dados do usuário:', error);
+        sessionStorage.removeItem('usuario');
+        window.location.href = '../login/login.html?force=true';
+        return null;
     }
 }

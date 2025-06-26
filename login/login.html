@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Cafeteria</title>
-  <!-- Inclua todas as bibliotecas aqui dentro do head -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.32/sweetalert2.all.min.js"></script>
+  
+  <!-- Arquivos locais -->
   <link rel="stylesheet" href="login.css">
 </head>
 <body>
@@ -46,10 +51,6 @@
           <i class="fas fa-key"></i> Esqueci a Senha
         </button>
       </div>
-
-      <button type="button" onclick="entrarComoGerente()" class="botao gerente">
-        <i class="fas fa-user-shield"></i> Acesso Gerente
-      </button>
     </form>
 
     <div id="msg-status" class="status-message"></div>
@@ -67,9 +68,13 @@
       <button onclick="confirmarNovaSenha()" class="botao principal">
         <i class="fas fa-save"></i> Salvar Nova Senha
       </button>
+      <button onclick="voltarParaLogin()" class="botao secundario" style="margin-top: 10px;">
+        <i class="fas fa-arrow-left"></i> Voltar
+      </button>
     </div>
   </main>
 
+  <!-- JavaScript no final do body -->
   <script src="login.js"></script>
 </body>
 </html>

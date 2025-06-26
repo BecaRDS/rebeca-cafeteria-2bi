@@ -1,172 +1,447 @@
-  /* Estilos básicos para o corpo e fonte */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6; /* cinza claro de fundo */
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Alinha no topo para melhor visualização de conteúdo maior */
-            min-height: 100vh; /* Garante que o corpo ocupa toda a altura da viewport */
-            padding: 2rem 1rem; /* Adiciona padding para telas pequenas */
-            box-sizing: border-box; /* Inclui padding na largura total */
-        }
-        .container {
-            max-width: 900px; /* Largura máxima para o conteúdo principal */
-            width: 100%; /* Ocupa 100% da largura disponível até o max-width */
-            background-color: #ffffff;
-            border-radius: 0.75rem; /* cantos arredondados */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* sombra suave */
-            padding: 2rem;
-            box-sizing: border-box; /* Inclui padding na largura total */
-        }
-        h1, h2 {
-            color: #1f2937; /* cinza escuro para títulos */
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-weight: 700; /* Negrito */
-        }
-        .form-container, .table-container {
-            margin-bottom: 2rem;
-        }
-        form div {
-            margin-bottom: 1rem;
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600; /* Seminegrito */
-            color: #374151; /* cinza médio */
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="url"],
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db; /* borda cinza clara */
-            border-radius: 0.5rem; /* cantos arredondados */
-            font-size: 1rem;
-            box-sizing: border-box; /* Inclui padding na largura total */
-        }
-        textarea {
-            min-height: 80px; /* Altura mínima para textarea */
-            resize: vertical; /* Permite redimensionar verticalmente */
-        }
-        .button-group {
-            display: flex;
-            gap: 1rem; /* Espaçamento entre botões */
-            justify-content: flex-end; /* Alinha botões à direita */
-            margin-top: 1.5rem;
-        }
-        button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        button[type="submit"] {
-            background-color: #4f46e5; /* azul índigo */
-            color: #ffffff;
-        }
-        button[type="submit"]:hover {
-            background-color: #4338ca; /* azul índigo mais escuro no hover */
-            transform: translateY(-1px);
-        }
-        button[type="button"]#cancel-edit {
-            background-color: #ef4444; /* vermelho */
-            color: #ffffff;
-        }
-        button[type="button"]#cancel-edit:hover {
-            background-color: #dc2626; /* vermelho mais escuro no hover */
-            transform: translateY(-1px);
-        }
-        .delete {
-            background-color: #ef4444; /* vermelho */
-            color: #ffffff;
-            margin-left: 0.5rem;
-        }
-        .delete:hover {
-            background-color: #dc2626; /* vermelho mais escuro */
-        }
-        .edit {
-            background-color: #f59e0b; /* amarelo-laranja */
-            color: #ffffff;
-        }
-        .edit:hover {
-            background-color: #d97706; /* amarelo-laranja mais escuro */
-        }
-        hr {
-            border: none;
-            border-top: 1px solid #e5e7eb; /* linha divisória cinza clara */
-            margin: 2.5rem 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        th, td {
-            padding: 1rem;
-            border-bottom: 1px solid #e5e7eb; /* borda inferior para células */
-        }
-        th {
-            background-color: #e5e7eb; /* fundo cinza claro para cabeçalho */
-            font-weight: 700;
-            color: #374151;
-        }
-        tr:last-child td {
-            border-bottom: none; /* remove borda inferior da última linha */
-        }
-        .loading, .error {
-            text-align: center;
-            font-style: italic;
-            color: #6b7280; /* cinza */
-            padding: 1.5rem;
-        }
-        .error {
-            color: #dc2626; /* vermelho para erros */
-        }
-        .success {
-            background-color: #d1fae5; /* verde claro */
-            color: #065f46; /* verde escuro */
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 600;
-        }
-        .back-button {
-            text-align: center;
-            margin-top: 2rem;
-        }
-        .back-button button {
-            background-color: #6b7280; /* cinza */
-            color: #ffffff;
-        }
-        .back-button button:hover {
-            background-color: #4b5563; /* cinza mais escuro */
-            transform: translateY(-1px);
-        }
+/* Estilos base com variáveis CSS para a paleta marrom/laranja */
+:root {
+  --primary-color: #8B4513; /* Marrom sela */
+  --primary-light: #A0522D; /* Marrom sienna */
+  --primary-dark: #5D4037; /* Marrom escuro */
+  --secondary-color: #D2691E; /* Chocolate */
+  --accent-color: #FF7F24; /* Laranja chocolate */
+  --accent-light: #FFA07A; /* Laranja claro */
+  --light-color: #FFF8E1; /* Branco marfim */
+  --dark-color: #3E2723; /* Marrom muito escuro */
+  --gray-color: #BCAAA4; /* Marrom cinza */
+  --border-color: #D7CCC8; /* Marrom claro */
+  --border-radius: 8px;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
 
-        /* Estilos responsivos para imagens na tabela */
-        @media (max-width: 640px) {
-            img {
-                width: 40px; /* Reduz tamanho da imagem em telas menores */
-                height: 40px;
-                object-fit: cover; /* Garante que a imagem cubra a área */
-                border-radius: 0.25rem; /* Leve arredondamento */
-            }
-            th, td {
-                padding: 0.75rem 0.5rem; /* Reduz padding em telas menores */
-                font-size: 0.875rem; /* Fonte menor */
-            }
-            .button-group {
-                flex-direction: column; /* Botões empilhados em telas pequenas */
-                gap: 0.75rem;
-            }
-            button {
-                width: 100%; /* Botões ocupam 100% da largura em telas pequenas */
-            }
-        }
+/* Reset e estilos globais */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--light-color);
+  color: var(--dark-color);
+  line-height: 1.6;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  width: 100%;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 2.5rem;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+/* Tipografia */
+h1, h2 {
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  padding-bottom: 1rem;
+}
+
+h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: var(--accent-color);
+  border-radius: 3px;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+/* Seções e espaçamento */
+.form-container, .table-container {
+  margin-bottom: 2.5rem;
+}
+
+/* Formulário */
+form div {
+  margin-bottom: 1.25rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--primary-dark);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: var(--transition);
+  background-color: white;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="url"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 127, 36, 0.2);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Botões */
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+button[type="submit"]:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+button[type="button"]#cancel-edit {
+  background-color: #A52A2A; /* Marrom avermelhado */
+  color: white;
+}
+
+button[type="button"]#cancel-edit:hover {
+  background-color: #8B0000; /* Vermelho escuro */
+  transform: translateY(-2px);
+}
+
+.edit {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.edit:hover {
+  background-color: #E67C00; /* Laranja mais escuro */
+}
+
+.delete {
+  background-color: #A52A2A; /* Marrom avermelhado */
+  color: white;
+}
+
+.delete:hover {
+  background-color: #8B0000; /* Vermelho escuro */
+}
+
+/* Tabela */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  margin-top: 1.5rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  background-color: white;
+}
+
+th, td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--light-color);
+  font-weight: 600;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+tr:hover {
+  background-color: rgba(139, 69, 19, 0.03);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* Imagens na tabela */
+.produto-imagem {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+}
+
+.produto-imagem:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Upload de imagem */
+.image-upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: rgba(255, 248, 225, 0.5);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.image-option-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.toggle-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background: white;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+  font-size: 0.9rem;
+  color: var(--primary-dark);
+}
+
+.toggle-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.url-input-container,
+.file-input-container {
+  display: none;
+}
+
+.url-input-container.active,
+.file-input-container.active {
+  display: block;
+}
+
+.upload-btn {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-btn:hover {
+  background-color: var(--primary-color);
+}
+
+.image-preview {
+  max-width: 120px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+  display: none;
+  margin-top: 0.5rem;
+}
+
+.upload-progress {
+  display: none;
+  color: var(--secondary-color);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Botões CSV */
+.file-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.file-btn {
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.load-btn {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+.load-btn:hover {
+  background-color: var(--primary-color);
+}
+
+.save-btn {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.save-btn:hover {
+  background-color: #E67C00;
+}
+
+/* Mensagens */
+.loading, .error {
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.loading {
+  font-style: italic;
+  color: var(--gray-color);
+}
+
+.error {
+  color: #A52A2A;
+  background-color: rgba(165, 42, 42, 0.1);
+  border-radius: var(--border-radius);
+}
+
+.success {
+  background-color: rgba(139, 69, 19, 0.1);
+  color: var(--primary-dark);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+  border-left: 4px solid var(--primary-color);
+}
+
+/* Botão voltar */
+.back-button {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.back-button button {
+  background-color: var(--gray-color);
+  color: white;
+}
+
+.back-button button:hover {
+  background-color: var(--primary-light);
+}
+
+/* Divisor */
+hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 2rem 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .button-group, .file-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  button, .file-btn {
+    width: 100%;
+  }
+  
+  th, td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .produto-imagem {
+    width: 40px;
+    height: 40px;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 1rem 0.5rem;
+  }
+  
+  .container {
+    padding: 1rem;
+    border-radius: 0;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  input[type="url"],
+  textarea {
+    padding: 0.65rem 0.75rem;
+  }
+}

@@ -5,95 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Produtos</title>
     <link rel="stylesheet" href="gerenciar-produtos.css">
-    <style>
-        .success {
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        
-        .error {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-        }
-        
-        .loading {
-            text-align: center;
-            font-style: italic;
-            color: #666;
-        }
-        
-        .file-btn {
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        
-        .load-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        
-        .load-btn:hover {
-            background-color: #218838;
-        }
-        
-        .save-btn {
-            background-color: #007bff;
-            color: white;
-        }
-        
-        .save-btn:hover {
-            background-color: #0056b3;
-        }
-        
-        .edit {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            margin-right: 5px;
-            font-size: 12px;
-        }
-        
-        .edit:hover {
-            background-color: #e0a800;
-        }
-        
-        .delete {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .delete:hover {
-            background-color: #c82333;
-        }
-        
-        .produto-imagem {
-            max-width: 50px;
-            max-height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -119,22 +30,44 @@
                 </div>
 
                 <div>
-                    <label for="imagem">URL da Imagem:</label>
-                    <input type="url" id="imagem" required placeholder="Digite a URL da imagem do produto">
+                    <label for="imagem">Imagem do Produto:</label>
+                    <div class="image-upload-container">
+                        <div class="image-option-toggle">
+                            <button type="button" class="toggle-btn active" id="upload-toggle">📁 Upload de Arquivo</button>
+                            <button type="button" class="toggle-btn" id="url-toggle">🔗 URL da Imagem</button>
+                        </div>
+                        
+                        <div class="file-input-container active">
+                            <div class="image-input-group">
+                                <input type="file" id="image-file" accept="image/*">
+                                <button type="button" class="upload-btn">
+                                    📤 Escolher Imagem
+                                </button>
+                                <span class="upload-progress" id="upload-progress">Enviando...</span>
+                            </div>
+                            <img id="image-preview" class="image-preview" alt="Preview da imagem">
+                        </div>
+                        
+                        <div class="url-input-container">
+                            <input type="url" id="imagem-url" placeholder="Digite a URL da imagem do produto">
+                        </div>
+                        
+                        <input type="hidden" id="imagem" required>
+                    </div>
                 </div>
                 
                 <div class="button-group">
                     <button type="submit">Salvar Produto</button>
-                    <button type="button" id="cancel-edit" style="display:none;">Cancelar Edição</button>
+                    <button type="button" id="cancel-edit">Cancelar Edição</button>
                 </div>
             </form>
         </div>
         
         <hr>
         
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="table-header">
             <h2>Lista de Produtos</h2>
-            <div class="file-buttons" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="file-buttons">
                 <button onclick="carregarCSV()" class="file-btn load-btn" title="Carregar produtos de um arquivo CSV">
                     📁 Carregar CSV
                 </button>

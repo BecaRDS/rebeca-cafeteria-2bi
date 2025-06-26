@@ -1,13 +1,47 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
-const app = express(); // ✅ app é criado aqui
+const app = express();
 const PORT = 3000;
 const CSV_FILE = 'produtos.csv';
 const ADMIN_CSV_FILE = 'administradores.csv';
+
+// Configuração do multer para upload de imagens
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const uploadDir = path.join(__dirname, 'img');
+        // Cria a pasta img se não existir
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        // Gera um nome único para o arquivo
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const extension = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + extension);
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        // Aceita apenas imagens
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Apenas arquivos de imagem são permitidos!'), false);
+        }
+    },
+    limits: {
+        fileSize: 5 * 1024 * 1024 // Limite de 5MB
+    }
+});
 
 // ✅ Expor a pasta de imagens publicamente
 app.use('/img', express.static(path.join(__dirname, 'img')));
@@ -20,35 +54,63 @@ let administrators = [];
 let nextId = 1;
 let nextAdminId = 1;
 
-// Carrega produtos do CSV
+// Modificar a função loadDataFromCSV
 function loadDataFromCSV() {
     try {
-        if (fs.existsSync(CSV_FILE)) {
-            const data = fs.readFileSync(CSV_FILE, 'utf8');
+        const filePath = path.join(__dirname, CSV_FILE);
+        if (fs.existsSync(filePath)) {
+            const data = fs.readFileSync(filePath, 'utf8');
             const lines = data.split('\n').filter(line => line.trim() !== '');
-            const headers = lines[0].split(','); // nome,preco,imagem,descricao
+            
+            if (lines.length === 0) {
+                products = [];
+                return;
+            }
 
+            const headers = lines[0].split(',');
             products = lines.slice(1).map((line, index) => {
-                const [nome, preco, imagem, ...descricaoArr] = line.split(',');
-                const descricao = descricaoArr.join(',').replace(/"/g, '').trim();
+                const values = parseCSVLine(line);
                 return {
                     id: index + 1,
-                    nome: nome.trim(),
-                    preco: parseFloat(preco),
-                    imagem: imagem.trim(),
-                    descricao
+                    nome: values[0]?.trim() || '',
+                    preco: parseFloat(values[1]) || 0,
+                    imagem: values[2]?.trim() || '',
+                    descricao: values.slice(3).join(',').replace(/"/g, '').trim()
                 };
             });
 
-            nextId = products.length + 1;
-            console.log('Produtos carregados do CSV com sucesso!');
+            nextId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
         } else {
-            fs.writeFileSync(CSV_FILE, 'nome,preco,imagem,descricao\n');
-            console.log('Arquivo CSV criado.');
+            fs.writeFileSync(filePath, 'nome,preco,imagem,descricao\n');
+            products = [];
         }
     } catch (error) {
         console.error('Erro ao carregar o CSV:', error);
+        products = [];
     }
+}
+
+// Adicionar função auxiliar para parse de linhas CSV
+function parseCSVLine(line) {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+            inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    
+    result.push(current);
+    return result;
 }
 
 // Carrega administradores do CSV
@@ -80,29 +142,29 @@ function loadAdministratorsFromCSV() {
     }
 }
 
-// Salva produtos no CSV
+// No server.js, modificar as funções de save
 function saveDataToCSV() {
     try {
+        const filePath = path.join(__dirname, CSV_FILE);
         let csvData = 'nome,preco,imagem,descricao\n';
         products.forEach(p => {
             const descricaoFormatada = `"${p.descricao.replace(/"/g, '""')}"`;
             csvData += `${p.nome},${p.preco},${p.imagem},${descricaoFormatada}\n`;
         });
-        fs.writeFileSync(CSV_FILE, csvData);
-        console.log('Produtos salvos no CSV.');
+        fs.writeFileSync(filePath, csvData);
     } catch (error) {
         console.error('Erro ao salvar o CSV:', error);
     }
 }
 
-// Salva administradores no CSV
+// Modificar a função saveAdministratorsToCSV para garantir o caminho correto
 function saveAdministratorsToCSV() {
     try {
         let csvData = 'email,senha,tipo\n';
         administrators.forEach(admin => {
             csvData += `${admin.email},${admin.senha},${admin.tipo}\n`;
         });
-        fs.writeFileSync(ADMIN_CSV_FILE, csvData);
+        fs.writeFileSync(path.join(__dirname, ADMIN_CSV_FILE), csvData);
         console.log('Administradores salvos no CSV.');
     } catch (error) {
         console.error('Erro ao salvar o CSV de administradores:', error);
@@ -120,6 +182,25 @@ function setupAutoSave() {
 loadDataFromCSV();
 loadAdministratorsFromCSV();
 setupAutoSave();
+
+// Nova rota para upload de imagem
+app.post('/upload-image', upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'Nenhuma imagem foi enviada' });
+        }
+
+        res.json({
+            message: 'Imagem enviada com sucesso',
+            filename: req.file.filename,
+            originalName: req.file.originalname,
+            size: req.file.size
+        });
+    } catch (error) {
+        console.error('Erro no upload:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+});
 
 // Rotas da API - Produtos
 
@@ -153,6 +234,7 @@ app.post('/products', (req, res) => {
     };
 
     products.push(newProduct);
+    saveDataToCSV(); // Salva imediatamente no CSV
     res.status(201).json(newProduct);
 });
 
@@ -169,6 +251,19 @@ app.put('/products/:id', (req, res) => {
         return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
     }
 
+    // Se a imagem mudou, remove a imagem antiga
+    const oldProduct = products[index];
+    if (oldProduct.imagem !== imagem && oldProduct.imagem && !oldProduct.imagem.startsWith('http')) {
+        const oldImagePath = path.join(__dirname, 'img', oldProduct.imagem);
+        if (fs.existsSync(oldImagePath)) {
+            try {
+                fs.unlinkSync(oldImagePath);
+            } catch (error) {
+                console.error('Erro ao deletar imagem antiga:', error);
+            }
+        }
+    }
+
     const updatedProduct = {
         id,
         nome,
@@ -178,6 +273,7 @@ app.put('/products/:id', (req, res) => {
     };
 
     products[index] = updatedProduct;
+    saveDataToCSV(); // Salva imediatamente no CSV
     res.json(updatedProduct);
 });
 
@@ -189,7 +285,21 @@ app.delete('/products/:id', (req, res) => {
         return res.status(404).json({ message: 'Produto não encontrado' });
     }
 
+    // Remove a imagem do produto se for local
+    const product = products[index];
+    if (product.imagem && !product.imagem.startsWith('http')) {
+        const imagePath = path.join(__dirname, 'img', product.imagem);
+        if (fs.existsSync(imagePath)) {
+            try {
+                fs.unlinkSync(imagePath);
+            } catch (error) {
+                console.error('Erro ao deletar imagem:', error);
+            }
+        }
+    }
+
     products.splice(index, 1);
+    saveDataToCSV(); // Salva imediatamente no CSV
     res.status(204).send();
 });
 
@@ -241,6 +351,7 @@ app.post('/administrators', (req, res) => {
     };
 
     administrators.push(newAdmin);
+    saveAdministratorsToCSV(); // Salva imediatamente no CSV
     
     // Retorna sem a senha por segurança
     res.status(201).json({
@@ -277,6 +388,7 @@ app.put('/administrators/:id', (req, res) => {
     };
 
     administrators[index] = updatedAdmin;
+    saveAdministratorsToCSV(); // Salva imediatamente no CSV
     
     // Retorna sem a senha por segurança
     res.json({
@@ -304,6 +416,7 @@ app.delete('/administrators/:id', (req, res) => {
     }
 
     administrators.splice(index, 1);
+    saveAdministratorsToCSV(); // Salva imediatamente no CSV
     res.status(204).send();
 });
 
@@ -316,4 +429,3 @@ process.on('SIGINT', () => {
     saveAdministratorsToCSV();
     process.exit();
 });
-
