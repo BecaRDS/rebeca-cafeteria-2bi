@@ -327,8 +327,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erro ao excluir gerente');
+                    let errorMessage = `Erro HTTP: ${response.status} ${response.statusText || ''}`;
+                    // Tenta ler o corpo da resposta apenas se o Content-Type for JSON
+                    if (response.headers.get('content-type')?.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } else {
+                        // Para outros status de erro sem JSON, tenta ler como texto
+                        const errorText = await response.text();
+                        errorMessage = `Erro: ${errorText || response.statusText || 'Erro desconhecido'}`;
+                    }
+                    throw new Error(errorMessage);
                 }
                 
                 showSuccess('Gerente excluído com sucesso!');
@@ -365,3 +374,4 @@ function showSuccess(message) {
 function voltarAoMenu() {
     window.location.href = '../menu/menu.html';
 }
+

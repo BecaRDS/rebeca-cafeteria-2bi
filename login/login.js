@@ -37,34 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Testar conectividade com a API
-    testarConectividadeAPI();
+    // testarConectividadeAPI();
 });
 
-// Função para testar conectividade com a API
-async function testarConectividadeAPI() {
-    try {
-        console.log('🔍 Testando conectividade com a API...');
-        const response = await fetch(`${API_BASE_URL}/administrators`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('✅ API conectada com sucesso. Administradores encontrados:', data.length);
-            return true;
-        } else {
-            console.error('❌ Erro na API:', response.status, response.statusText);
-            return false;
-        }
-    } catch (error) {
-        console.error('❌ Erro ao conectar com a API:', error.message);
-        console.log('🔧 Verifique se o servidor está rodando em http://localhost:3000');
-        return false;
-    }
-}
 
 // Função para obter URL de redirecionamento
 function getRedirectUrl() {
@@ -108,20 +83,27 @@ async function fazerLogin(e) {
 
     try {
         // Primeiro: Tentar autenticação via API (administradores)
-        const isAdminAuth = await tentarAutenticacaoAdmin(email, senha);
-        if (isAdminAuth) {
-            return; // Login realizado com sucesso
+        const isAdminEmail = await verificarEmailAdmin(email);
+        if (isAdminEmail) {
+            const isAdminAuth = await tentarAutenticacaoAdmin(email, senha);
+            if (isAdminAuth) {
+                return; // Login de administrador realizado com sucesso
+            } else {
+                console.log("❌ Credenciais inválidas para administrador");
+                mostrarMensagem("Email ou senha incorretos", "error");
+                return;
+            }
         }
 
-        // Segundo: Verificar usuários locais (clientes)
+        // Segundo: Verificar usuários locais (clientes) se não for email de administrador
         const isClientAuth = tentarAutenticacaoLocal(email, senha);
         if (isClientAuth) {
-            return; // Login realizado com sucesso
+            return; // Login de cliente realizado com sucesso
         }
 
         // Se chegou até aqui, credenciais inválidas
-        console.log('❌ Credenciais inválidas para todos os métodos');
-        mostrarMensagem('Email ou senha incorretos', 'error');
+        console.log("❌ Credenciais inválidas para todos os métodos");
+        mostrarMensagem("Email ou senha incorretos", "error");
         
     } catch (error) {
         console.error('❌ Erro geral no login:', error);
