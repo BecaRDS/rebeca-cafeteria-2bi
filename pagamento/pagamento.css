@@ -1,172 +1,353 @@
-/* Reset básico */
+/* pagamento.css - Versão Premium */
+
+:root {
+  --primary-dark: #2B1810;
+  --primary-medium: #45322A;
+  --primary-light: #6D4C41;
+  --accent-dark: #D96C20;
+  --accent-medium: #E67C30;
+  --accent-light: #FF9E4F;
+  --background-light: #F8F4F1;
+  --text-dark: #2B1810;
+  --text-medium: #45322A;
+  --text-light: #FFFFFF;
+  --shadow-sm: 0 2px 6px rgba(43, 24, 16, 0.08);
+  --shadow-md: 0 4px 12px rgba(43, 24, 16, 0.12);
+  --shadow-lg: 0 8px 24px rgba(43, 24, 16, 0.16);
+  --transition: all 0.4s cubic-bezier(0.16, 0.85, 0.3, 1);
+  --border-radius: 10px;
+  --border-radius-lg: 16px;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Estilização do corpo da página */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f9f5f1;
-  color: #3e2723;
-  padding: 20px;
-  line-height: 1;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+  padding: 2rem;
+  line-height: 1.65;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Estilização do cabeçalho */
+/* Header Premium */
 header {
   text-align: center;
-  margin-bottom: 30px;
-  background-color: #5d4037;
-  padding: 25px 20px;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  margin-bottom: 2.5rem;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary-medium));
+  padding: 2.5rem;
+  color: var(--text-light);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--border-radius-lg);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(230, 124, 48, 0.15);
 }
 
-/* Estilização dos títulos */
+header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(230, 124, 48, 0.1) 0%, transparent 70%);
+  animation: rotate 15s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 h2 {
-  font-size: 2.5rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  padding: 20px;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 1.5rem;
+  position: relative;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Área de resumo de pagamento */
+/* Área de Resumo */
 #resumoPagamento {
-  background-color: #efebe9;
-  padding: 20px;
-  margin-bottom: 25px;
-  border-left: 10px solid #8d6e63;
-  border-radius: 8px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--background-light);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  border-left: 6px solid var(--accent-medium);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
   font-size: 1.4rem;
-  color: #4e342e;
-  font-weight: bold;
+  color: var(--text-dark);
+  font-weight: 600;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
 
-/* Estilização de rótulos */
-label {
-  font-size: 1.1rem;
-  color: #5d4037;
-  margin-bottom: 8px;
-  display: inline-block;
-}
-
-/* Estilização do select */
-select {
-  padding: 12px;
-  margin: 12px 0;
+#resumoPagamento::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  max-width: 320px;
-  border: 1px solid #bcaaa4;
-  border-radius: 6px;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(230, 124, 48, 0.03), transparent);
+  pointer-events: none;
+}
+
+#resumoPagamento:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Formulário de Pagamento */
+.forma-pagamento {
+  max-width: 800px;
+  margin: 0 auto 2.5rem;
+  padding: 2rem;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.forma-pagamento label {
+  font-size: 1.1rem;
+  color: var(--text-medium);
+  margin-bottom: 0.8rem;
+  display: block;
+  font-weight: 500;
+}
+
+select {
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 100%;
+  max-width: 350px;
+  border: 1px solid rgba(109, 76, 65, 0.3);
+  border-radius: var(--border-radius);
   font-size: 1rem;
-  background-color: #988276ae;
-  color: #3e2723;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+  transition: var(--transition);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2345322A'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2rem;
 }
 
 select:focus {
-  border-color: #6f4f29;
+  border-color: var(--accent-medium);
   outline: none;
-  box-shadow: 0 0 5px rgba(111, 79, 41, 0.4);
-}
-
-/* Estilização dos botões */
-.botao {
-  margin: 10px 10px 0 0;
-  padding: 12px 30px;
-  background-color: #795548;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.botao:hover {
-  background-color: #6d4c41;
-  transform: scale(1.04);
-}
-
-.botao:focus {
-  outline: none;
-  box-shadow: 0 0 10px rgba(111, 79, 41, 0.4);
-}
-
-/* Estilização do rodapé */
-footer {
-  text-align: center;
-  margin-top: auto;
-  padding: 20px;
-  color: #a1887f;
-  font-size: 0.9rem;
-  background-color: #efebe9;
-  border-top: 1px solid #d7ccc8;
-}
-
-/* Barra inferior de navegação */
-.barra-inferior {
-  position: fixed;
-  bottom: 20px;
-  right: 15px;
-  background-color: #3e2723;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
-  z-index: 1000;
-}
-
-.barra-inferior a {
-  color: white;
-  text-decoration: none;
-  font-size: 1.5rem;
-  padding: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  transition: background-color 0.3s ease;
-}
-
-.barra-inferior a:hover {
-  background-color: #5d4037;
+  box-shadow: 0 0 0 3px rgba(230, 124, 48, 0.2);
 }
 
 /* Área do QR Code */
 .qrcode-area {
-  margin-top: 20px;
+  margin: 2.5rem auto;
   text-align: center;
-  padding: 20px;
-  background-color: #efebe9;
-  border-radius: 8px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  background-color: var(--background-light);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  max-width: 500px;
+  transition: var(--transition);
+  border: 1px solid rgba(109, 76, 65, 0.1);
+}
+
+.qrcode-area:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .qrcode-area h2 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
-  color: #4e342e;
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-dark);
+  padding: 0;
 }
 
 .nome-valor {
-  margin-top: 15px;
-  font-size: 1rem;
-  color: #5d4037;
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+  color: var(--text-medium);
 }
 
 .nome-valor p {
-  margin: 5px 0;
+  margin: 0.8rem 0;
+  font-weight: 500;
+}
+
+/* Botões */
+.botoes-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  justify-content: flex-end;
+}
+
+.botao {
+  padding: 1rem 2.5rem;
+  border-radius: var(--border-radius);
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border: none;
+}
+
+.botao-primario {
+  background: linear-gradient(135deg, var(--primary-medium), var(--primary-dark));
+  color: var(--text-light);
+}
+
+.botao-primario::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--accent-medium), var(--accent-light));
+  z-index: -1;
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.botao-primario:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(230, 124, 48, 0.3);
+}
+
+.botao-primario:hover::before {
+  opacity: 1;
+}
+
+.botao-secundario {
+  background: transparent;
+  color: var(--primary-medium);
+  border: 2px solid var(--primary-medium);
+}
+
+.botao-secundario:hover {
+  color: var(--text-light);
+  border-color: var(--accent-medium);
+  background-color: var(--accent-medium);
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 1.5rem;
+  color: var(--primary-light);
+  font-size: 0.95rem;
+  background-color: var(--background-light);
+  border-top: 1px solid rgba(109, 76, 65, 0.2);
+}
+
+/* Barra Inferior */
+.barra-inferior {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: rgba(43, 24, 16, 0.95);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  z-index: 1000;
+  transition: var(--transition);
+  border: 1px solid rgba(230, 124, 48, 0.2);
+  backdrop-filter: blur(6px);
+}
+
+.barra-inferior:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(43, 24, 16, 0.2);
+}
+
+.barra-inferior a {
+  color: var(--text-light);
+  text-decoration: none;
+  font-size: 1.4rem;
+  padding: 0.8rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  transition: var(--transition);
+  background-color: rgba(109, 76, 65, 0.3);
+}
+
+.barra-inferior a:hover {
+  background-color: var(--accent-medium);
+  transform: scale(1.1);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  body {
+    padding: 1.5rem;
+  }
+  
+  header {
+    padding: 1.8rem;
+  }
+  
+  h2 {
+    font-size: 1.8rem;
+  }
+  
+  .botoes-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .botao {
+    width: 100%;
+  }
+  
+  .barra-inferior {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 1rem;
+  }
+  
+  header {
+    padding: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    padding: 1rem;
+  }
+  
+  #resumoPagamento, .forma-pagamento, .qrcode-area {
+    padding: 1.5rem;
+  }
 }

@@ -10,12 +10,16 @@
  <header>
     <h2>CAFETERIA DA REBECA ☕</h2>
     <nav style="margin-bottom: 10px;">
-        <button onclick="location.href='../login/login.html'">Login</button>
+        <button id="botao-login" onclick="location.href='../login/login.html'">Login</button>
         <div id="gerente-botoes" style="display: none;">
-            <button onclick="location.href='../gerenciar-produtos/gerenciar-produtos.html'">📦 Produtos</button>
-            <button onclick="location.href='../gerenciar/gerenciar.html'">👩‍💼 Administradores</button>
+            <div class="botoes-linha">
+                <button onclick="location.href='../gerenciar-produtos/gerenciar-produtos.html'">📦 Produtos</button>
+                <button onclick="location.href='../gerenciar/gerenciar.html'">👩‍💼 Administradores</button>
+            </div>
+            <button id="botao-logout" style="display: none;">Sair</button>
         </div>
     </nav>
+    
 </header>
 
   <main id="menu-container"></main>
@@ -29,7 +33,7 @@
     <p>&copy; 2025 Cafeteria</p>
   </footer>
 
+  <script src="../auth-utils.js"></script>
   <script src="menu.js"></script>
 </body>
 </html>
-

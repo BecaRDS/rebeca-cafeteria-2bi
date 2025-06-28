@@ -1,15 +1,5 @@
 // Carregar produtos da API e renderizar no menu
 document.addEventListener('DOMContentLoaded', async () => {
-    // Verificar se é gerente para mostrar os botões específicos
-    try {
-        const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario'));
-        if (usuarioLogado && usuarioLogado.tipo === 'gerente') {
-            document.getElementById('gerente-botoes').style.display = 'block';
-        }
-    } catch (error) {
-        console.error('Erro ao verificar status do gerente:', error);
-    }
-
     // Carregar produtos e renderizar no menu
     try {
         const res = await fetch('http://localhost:3000/products');
@@ -74,4 +64,3 @@ function adicionarAoCarrinho(id, nome) {
         alert('Ocorreu um erro ao adicionar o produto ao carrinho. Por favor, tente novamente.');
     }
 }
-
