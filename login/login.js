@@ -3,15 +3,10 @@ const USUARIOS_KEY = 'usuarios';
 const TOKEN_RECUPERACAO_KEY = 'tokenRecuperacao';
 const API_BASE_URL = 'http://localhost:3000';
 
-// Administradores hardcoded (baseado no CSV)
-const ADMINS_HARDCODED = [
-    { email: 'rebeca@cafeteria.com', senha: 'admin123', tipo: 'gerente' },
-    { email: 'cliente1@cafeteria.com', senha: '1234567', tipo: 'gerente' },
-    { email: 'cliente@cafeteria.com', senha: '1234567', tipo: 'gerente' }
-];
-
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 Sistema de login inicializado');
+    
     const usuarioLogado = sessionStorage.getItem('usuario');
     const redirect = getRedirectUrl();
     const forceLogin = getForceLoginParam();
@@ -19,9 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Só redireciona automaticamente se não for um logout forçado ou acesso manual
     if (usuarioLogado && redirect !== 'manual' && !forceLogin) {
         try {
-            redirecionarUsuario(JSON.parse(usuarioLogado), redirect);
+            const userData = JSON.parse(usuarioLogado);
+            console.log('✅ Usuário já logado, redirecionando...', userData.email);
+            redirecionarUsuario(userData, redirect);
+            return;
         } catch (error) {
-            console.error('Erro ao analisar dados do usuário:', error);
+            console.error('❌ Erro ao analisar dados do usuário:', error);
             sessionStorage.removeItem('usuario');
         }
     }
@@ -37,7 +35,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (recuperacaoSection) {
         recuperacaoSection.style.display = 'none';
     }
+    
+    // Testar conectividade com a API
+    testarConectividadeAPI();
 });
+
+// Função para testar conectividade com a API
+async function testarConectividadeAPI() {
+    try {
+        console.log('🔍 Testando conectividade com a API...');
+        const response = await fetch(`${API_BASE_URL}/administrators`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ API conectada com sucesso. Administradores encontrados:', data.length);
+            return true;
+        } else {
+            console.error('❌ Erro na API:', response.status, response.statusText);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Erro ao conectar com a API:', error.message);
+        console.log('🔧 Verifique se o servidor está rodando em http://localhost:3000');
+        return false;
+    }
+}
 
 // Função para obter URL de redirecionamento
 function getRedirectUrl() {
@@ -51,7 +78,7 @@ function getForceLoginParam() {
     return urlParams.get('logout') === 'true' || urlParams.get('force') === 'true';
 }
 
-// Função principal de login - SIMPLIFICADA
+// Função principal de login otimizada
 async function fazerLogin(e) {
     e.preventDefault();
     
@@ -65,6 +92,9 @@ async function fazerLogin(e) {
     const email = emailElement.value.trim();
     const senha = senhaElement.value;
 
+    console.log('🚀 Iniciando login para:', email);
+
+    // Validações básicas
     if (!email || !senha) {
         return mostrarMensagem('Por favor, preencha todos os campos', 'error');
     }
@@ -73,48 +103,113 @@ async function fazerLogin(e) {
         return mostrarMensagem('Por favor, insira um email válido', 'error');
     }
 
-    try {
-        // 1. Primeiro verificar administradores hardcoded
-        const adminEncontrado = ADMINS_HARDCODED.find(admin => 
-            admin.email === email && admin.senha === senha
-        );
+    // Mostrar loading
+    mostrarMensagem('Verificando credenciais...', 'info');
 
-        if (adminEncontrado) {
-            const userData = { 
-                email: adminEncontrado.email, 
-                tipo: adminEncontrado.tipo 
-            };
-            sessionStorage.setItem('usuario', JSON.stringify(userData));
-            mostrarMensagem('Login de administrador realizado com sucesso!', 'success');
-            const redirect = getRedirectUrl();
-            setTimeout(() => redirecionarUsuario(userData, redirect), 1000);
-            return;
+    try {
+        // Primeiro: Tentar autenticação via API (administradores)
+        const isAdminAuth = await tentarAutenticacaoAdmin(email, senha);
+        if (isAdminAuth) {
+            return; // Login realizado com sucesso
         }
 
-        // 2. Se não é admin, verificar usuários locais (clientes)
+        // Segundo: Verificar usuários locais (clientes)
+        const isClientAuth = tentarAutenticacaoLocal(email, senha);
+        if (isClientAuth) {
+            return; // Login realizado com sucesso
+        }
+
+        // Se chegou até aqui, credenciais inválidas
+        console.log('❌ Credenciais inválidas para todos os métodos');
+        mostrarMensagem('Email ou senha incorretos', 'error');
+        
+    } catch (error) {
+        console.error('❌ Erro geral no login:', error);
+        mostrarMensagem('Erro ao realizar login. Tente novamente.', 'error');
+    }
+}
+
+async function tentarAutenticacaoAdmin(email, senha) {
+    try {
+        console.log('🔍 Tentando autenticação de administrador...', { email, senha });
+        
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, senha })
+        });
+
+        console.log('Resposta da API:', {
+            status: response.status,
+            ok: response.ok
+        });
+
+        if (response.ok) {
+            const authResult = await response.json();
+            console.log('✅ Resultado da autenticação:', authResult);
+            
+            if (authResult.success && authResult.user) {
+                const userData = {
+                    id: authResult.user.id,
+                    email: authResult.user.email,
+                    tipo: authResult.user.tipo
+                };
+                
+                sessionStorage.setItem('usuario', JSON.stringify(userData));
+                mostrarMensagem('Login de administrador realizado com sucesso!', 'success');
+                
+                const redirect = getRedirectUrl();
+                setTimeout(() => redirecionarUsuario(userData, redirect), 1000);
+                return true;
+            }
+        }
+        
+        // Se chegou aqui, a autenticação falhou
+        const errorData = await response.json().catch(() => null);
+        console.log('❌ Falha na autenticação:', errorData || response.statusText);
+        return false;
+        
+    } catch (error) {
+        console.error('❌ Erro na autenticação admin:', error);
+        return false;
+    }
+}
+
+
+// Função para tentar autenticação local (clientes)
+function tentarAutenticacaoLocal(email, senha) {
+    try {
+        console.log('🔍 Verificando usuários locais...');
         const usuariosLocais = obterUsuarios();
+        console.log('👥 Usuários locais encontrados:', usuariosLocais.length);
+        
         const usuarioLocal = usuariosLocais.find(u => 
             u.email === email && u.senha === senha
         );
         
         if (usuarioLocal) {
+            console.log('✅ Cliente local autenticado:', usuarioLocal.email);
             const userData = { 
                 email: usuarioLocal.email, 
                 tipo: usuarioLocal.tipo || 'cliente' 
             };
+            
             sessionStorage.setItem('usuario', JSON.stringify(userData));
             mostrarMensagem('Login realizado com sucesso!', 'success');
+            
             const redirect = getRedirectUrl();
             setTimeout(() => redirecionarUsuario(userData, redirect), 1000);
-            return;
+            return true;
         }
-
-        // 3. Se chegou até aqui, credenciais inválidas
-        mostrarMensagem('Email ou senha incorretos', 'error');
+        
+        console.log('❌ Cliente local não encontrado');
+        return false;
         
     } catch (error) {
-        console.error('Erro no login:', error);
-        mostrarMensagem('Erro ao realizar login. Tente novamente.', 'error');
+        console.error('❌ Erro na autenticação local:', error);
+        return false;
     }
 }
 
@@ -123,17 +218,18 @@ function redirecionarUsuario(usuario, redirectUrl = '../menu/menu.html') {
         console.error('Dados do usuário inválidos para redirecionamento');
         return;
     }
+    console.log('🚀 Redirecionando usuário para:', redirectUrl);
     window.location.href = redirectUrl;
 }
 
-function criarConta() {
-    // Verificar se SweetAlert2 está disponível
+// Função para criar conta
+async function criarConta() {
     if (typeof Swal === 'undefined') {
         alert('Biblioteca SweetAlert2 não carregada. Verifique a conexão com a internet.');
         return;
     }
 
-    Swal.fire({
+    const { value: formValues } = await Swal.fire({
         title: 'Criar Nova Conta',
         html:
             '<input id="swal-email" class="swal2-input" placeholder="Email" type="email">' +
@@ -167,35 +263,58 @@ function criarConta() {
 
             return { email, senha };
         }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const { email, senha } = result.value;
-            
-            // Verificar se email já existe nos admins
-            const isAdminEmail = ADMINS_HARDCODED.some(admin => admin.email === email);
+    });
+
+    if (formValues) {
+        const { email, senha } = formValues;
+        
+        try {
+            // Verificar se é email de administrador
+            const isAdminEmail = await verificarEmailAdmin(email);
             if (isAdminEmail) {
                 return Swal.fire('Erro', 'Este email já está reservado para administradores', 'error');
             }
 
+            // Verificar se já existe localmente
             const usuarios = obterUsuarios();
             if (usuarios.find(u => u.email === email)) {
                 return Swal.fire('Erro', 'Este email já está cadastrado', 'error');
             }
 
+            // Criar conta
             usuarios.push({ email, senha, tipo: 'cliente' });
             salvarUsuarios(usuarios);
             Swal.fire('Sucesso', 'Conta criada com sucesso!', 'success');
+            
+        } catch (error) {
+            console.error('Erro ao criar conta:', error);
+            Swal.fire('Erro', 'Erro ao verificar dados. Tente novamente.', 'error');
         }
-    });
+    }
 }
 
-function esqueciSenha() {
+// Função para verificar se email é de administrador
+async function verificarEmailAdmin(email) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/administrators`);
+        if (response.ok) {
+            const administradores = await response.json();
+            return administradores.some(admin => admin.email === email);
+        }
+    } catch (error) {
+        console.error('Erro ao verificar administradores:', error);
+    }
+    return false;
+}
+
+// Função esqueci senha
+async function esqueciSenha() {
     if (typeof Swal === 'undefined') {
         alert('Biblioteca SweetAlert2 não carregada.');
         return;
     }
 
-    Swal.fire({
+    const { value: email } = await Swal.fire({
         title: 'Recuperar Senha',
         input: 'email',
         inputPlaceholder: 'Digite seu email cadastrado',
@@ -206,16 +325,17 @@ function esqueciSenha() {
             if (!value) return 'Por favor, digite seu email';
             if (!validarEmail(value)) return 'Por favor, insira um email válido';
         }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            const email = result.value;
-            
-            // Verificar se é email de admin
-            const isAdminEmail = ADMINS_HARDCODED.some(admin => admin.email === email);
+    });
+
+    if (email) {
+        try {
+            // Verificar se é email de administrador
+            const isAdminEmail = await verificarEmailAdmin(email);
             if (isAdminEmail) {
                 return Swal.fire('Erro', 'Não é possível recuperar senha de administrador por este método', 'error');
             }
 
+            // Verificar se existe localmente
             const usuarios = obterUsuarios();
             const usuario = usuarios.find(u => u.email === email);
 
@@ -223,12 +343,13 @@ function esqueciSenha() {
                 return Swal.fire('Erro', 'Nenhuma conta encontrada com este email', 'error');
             }
 
+            // Gerar token
             const token = Math.floor(100000 + Math.random() * 900000).toString();
             const validade = Date.now() + 300000; // 5 minutos
 
             localStorage.setItem(TOKEN_RECUPERACAO_KEY, JSON.stringify({ email, token, validade }));
 
-            Swal.fire({
+            await Swal.fire({
                 title: 'Token de Recuperação',
                 html: `Token gerado para <strong>${email}</strong><br><br><strong>Token:</strong> ${token}<br><small>Válido por 5 minutos</small>`,
                 icon: 'info',
@@ -243,8 +364,12 @@ function esqueciSenha() {
                 recuperacaoSection.style.display = 'block';
                 formLogin.style.display = 'none';
             }
+            
+        } catch (error) {
+            console.error('Erro ao processar recuperação:', error);
+            Swal.fire('Erro', 'Erro ao processar solicitação. Tente novamente.', 'error');
         }
-    });
+    }
 }
 
 function confirmarNovaSenha() {
@@ -303,14 +428,12 @@ function voltarParaLogin() {
         formLogin.style.display = 'block';
     }
     
-    // Limpar campos
     const tokenElement = document.getElementById('token');
     const novaSenhaElement = document.getElementById('novaSenha');
     
     if (tokenElement) tokenElement.value = '';
     if (novaSenhaElement) novaSenhaElement.value = '';
     
-    // Remover token de recuperação
     localStorage.removeItem(TOKEN_RECUPERACAO_KEY);
 }
 
