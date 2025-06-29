@@ -10,13 +10,19 @@
  <header>
     <h2>CAFETERIA DA REBECA ☕</h2>
     <nav style="margin-bottom: 10px;">
+        <!-- Botão de login (visível apenas para usuários não logados) -->
         <button id="botao-login" onclick="location.href='../login/login.html'">Login</button>
+        
+        <!-- Container para usuários logados -->
         <div id="gerente-botoes" style="display: none;">
             <div class="botoes-linha">
-                <button onclick="location.href='../gerenciar-produtos/gerenciar-produtos.html'">📦 Produtos</button>
-                <button onclick="location.href='../gerenciar/gerenciar.html'">👩‍💼 Administradores</button>
+                <!-- Botões de gerenciamento (apenas para administradores) -->
+                <button id="botao-produtos" onclick="location.href='../gerenciar-produtos/gerenciar-produtos.html'" style="display: none;">📦 Produtos</button>
+                <button id="botao-administradores" onclick="location.href='../gerenciar/gerenciar.html'" style="display: none;">👩‍💼 Administradores</button>
+                
+                <!-- Botão de logout (visível para todos os usuários logados) -->
+                <button id="botao-logout" style="display: none;">Sair</button>
             </div>
-            <button id="botao-logout" style="display: none;">Sair</button>
         </div>
     </nav>
     

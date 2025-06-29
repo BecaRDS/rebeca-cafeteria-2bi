@@ -1,5 +1,8 @@
 // Carregar produtos da API e renderizar no menu
 document.addEventListener('DOMContentLoaded', async () => {
+    // Verificar se há usuário logado e configurar interface
+    configurarInterface();
+    
     // Carregar produtos e renderizar no menu
     try {
         const res = await fetch('http://localhost:3000/products');
@@ -17,6 +20,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+// Função para configurar a interface baseada no usuário logado
+function configurarInterface() {
+    const usuarioLogado = sessionStorage.getItem('usuario');
+    const botaoLogin = document.getElementById('botao-login');
+    const gerenteBotoes = document.getElementById('gerente-botoes');
+    const botaoLogout = document.getElementById('botao-logout');
+    const botaoProdutos = document.getElementById('botao-produtos');
+    const botaoAdministradores = document.getElementById('botao-administradores');
+    
+    if (usuarioLogado) {
+        try {
+            const userData = JSON.parse(usuarioLogado);
+            console.log('Usuário logado:', userData);
+            
+            // Esconder botão de login
+            if (botaoLogin) {
+                botaoLogin.style.display = 'none';
+            }
+            
+            // Mostrar container de botões para usuários logados
+            if (gerenteBotoes) {
+                gerenteBotoes.style.display = 'block';
+            }
+            
+            // Mostrar botão de logout para todos os usuários logados
+            if (botaoLogout) {
+                botaoLogout.style.display = 'inline-block';
+                botaoLogout.onclick = logout;
+            }
+            
+            // Mostrar botões de gerenciamento apenas para administradores
+            if (userData.tipo && userData.tipo !== 'cliente') {
+                // É administrador - mostrar todos os botões
+                if (botaoProdutos) {
+                    botaoProdutos.style.display = 'inline-block';
+                }
+                if (botaoAdministradores) {
+                    botaoAdministradores.style.display = 'inline-block';
+                }
+            } else {
+                // É cliente - esconder botões de gerenciamento
+                if (botaoProdutos) {
+                    botaoProdutos.style.display = 'none';
+                }
+                if (botaoAdministradores) {
+                    botaoAdministradores.style.display = 'none';
+                }
+            }
+            
+        } catch (error) {
+            console.error('Erro ao processar dados do usuário:', error);
+            sessionStorage.removeItem('usuario');
+            configurarInterfaceNaoLogado();
+        }
+    } else {
+        configurarInterfaceNaoLogado();
+    }
+}
+
+// Função auxiliar para configurar interface de usuário não logado
+function configurarInterfaceNaoLogado() {
+    const botaoLogin = document.getElementById('botao-login');
+    const gerenteBotoes = document.getElementById('gerente-botoes');
+    
+    // Usuário não logado - mostrar apenas botão de login
+    if (botaoLogin) {
+        botaoLogin.style.display = 'inline-block';
+    }
+    if (gerenteBotoes) {
+        gerenteBotoes.style.display = 'none';
+    }
+}
 
 // Função para renderizar os produtos no menu
 function renderizarMenu(produtos) {
@@ -63,4 +139,10 @@ function adicionarAoCarrinho(id, nome) {
         console.error('Erro ao adicionar produto ao carrinho:', error);
         alert('Ocorreu um erro ao adicionar o produto ao carrinho. Por favor, tente novamente.');
     }
+}
+
+// Função de logout
+function logout() {
+    sessionStorage.removeItem('usuario');
+    window.location.href = '../login/login.html?logout=true';
 }
