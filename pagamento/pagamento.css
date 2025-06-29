@@ -249,6 +249,23 @@ select:focus {
   background-color: var(--accent-medium);
 }
 
+.btn-voltar-menu {
+  background-color: #4CAF50; /* Verde */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.btn-voltar-menu:hover {
+  background-color: #45a049;
+}
+
+
+
 /* Footer */
 footer {
   text-align: center;

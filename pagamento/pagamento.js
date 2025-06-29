@@ -9,7 +9,7 @@ function carregarTotalCarrinho() {
   if (Object.keys(carrinho).length === 0) {
     document.getElementById("resumoPagamento").innerHTML = `
       <p>Seu carrinho está vazio!</p>
-      <button onclick="window.location.href='../menu/menu.html'">Voltar ao Menu</button>
+      <button class="btn-voltar-menu" onclick="window.location.href=\'../menu/menu.html\'">Voltar ao Menu</button>
     `;
     return;
   }
